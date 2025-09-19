@@ -74,18 +74,34 @@ const handleImageError = (event) => {
 };
 
 // 获取卖家信息
-const fetchSellerInfo = async (sellerId) => {
+const fetchSellerInfo = async () => {
   try {
-    isLoading.value = true;
-    const res = await userApi.SearchUserById(sellerId);
-    seller.value = res.data.data;
-  } catch (error) {
-    console.error("获取卖家信息失败:", error);
+    // 如果父组件已经传递了卖家信息，则直接使用
+    if (props.book.sellerInfo) {
+      seller.value = props.book.sellerInfo;
+      isLoading.value = false;
+      return;
+    }
+    
+    // 否则通过API获取卖家信息
+    const response = await userApi.SearchUserById(props.book.seller_id);
+    if (response.data.code === 1 && response.data.data.length > 0) {
+      seller.value = response.data.data[0];
+    } else {
+      throw new Error("未找到卖家信息");
+    }
+  } catch (err) {
+    console.error("API Error:", err);
     seller.value = null;
   } finally {
     isLoading.value = false;
   }
 };
+
+// 组件加载时调用 API
+onMounted(() => {
+  fetchSellerInfo();
+});
 
 // 联系卖家
 const contactSeller = () => {

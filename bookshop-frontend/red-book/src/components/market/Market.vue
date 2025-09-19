@@ -108,7 +108,13 @@ async function fetchSellerInfo(sellerId) {
 
   try {
     const res = await userApi.SearchUserById(sellerId);
-    const sellerInfo = res.data.data;
+    // 根据master中的实现，需要检查返回数据的格式
+    let sellerInfo = null;
+    if (res.data.code === 1 && res.data.data.length > 0) {
+      sellerInfo = res.data.data[0];
+    } else {
+      throw new Error("未找到卖家信息");
+    }
     
     // 存入缓存
     sellerCache.set(sellerId, {
