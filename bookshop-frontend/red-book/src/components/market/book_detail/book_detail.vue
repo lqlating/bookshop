@@ -1,227 +1,197 @@
 <template>
-  <div class="book-detail-modal">
-    <div class="modal-header">
-      <button class="close-button" @click="$emit('close')">×</button>
+  <div class="book-detail">
+    <!-- 左侧书籍封面 -->
+    <div class="book-image-container">
+      <img :src="book.image || defaultBookCover" alt="书籍封面" class="book-image" @error="handleImageError" />
     </div>
-    
-    <div class="modal-content">
-      <!-- 加载状态 -->
-      <div v-if="book.isLoading" class="loading-seller">
-        <p>加载中...</p>
-      </div>
-      
-      <!-- 骨架屏样式 -->
-      <div v-else-if="book.isLoading && !book.sellerInfo" class="skeleton-loader">
-        <div class="skeleton-image"></div>
-        <div class="skeleton-info">
-          <div class="skeleton-line title-line"></div>
-          <div class="skeleton-line author-line"></div>
-          <div class="skeleton-line price-line"></div>
-          <div class="skeleton-line description-line"></div>
-          <div class="skeleton-avatar"></div>
-          <div class="skeleton-line seller-name-line"></div>
-        </div>
+
+    <!-- 中间分割线 -->
+    <div class="vertical-divider"></div>
+
+    <!-- 右侧商品详情 -->
+    <div class="book-info">
+      <div class="book-info-block">
+        <h2 class="book-title">{{ book.title }}</h2>
+        <p class="book-author">作者: {{ book.author }}</p>
+        <p class="book-price">价格: ¥{{ book.price }}</p>
+        <p class="book-description">
+          {{ book.description || "这本书暂无详细介绍。" }}
+        </p>
       </div>
 
-      <!-- 书籍封面和信息 -->
-      <div v-else class="book-cover-info">
-        <div class="book-cover">
-          <img :src="book.image" alt="book cover" />
+      <!-- 卖家信息 -->
+      <div v-if="isLoading" class="seller-loading">加载卖家信息中...</div>
+      <div v-else-if="seller" class="seller-info">
+        <div class="avatar-container">
+          <img :src="`data:image/png;base64,${seller.avatar_base64}`" alt="卖家头像" class="seller-avatar" />
         </div>
-        
-        <div class="book-info">
-          <h2>{{ book.title }}</h2>
-          <p>作者: {{ book.author }}</p>
-          <p>价格: ¥{{ book.price }}</p>
-          <p>{{ book.description }}</p>
-          
-          <!-- 卖家信息 -->
-          <div v-if="book.sellerInfo" class="seller-info">
-            <div class="seller-avatar">
-              <img :src="book.sellerInfo.avatar" alt="seller avatar" />
-            </div>
-            <div class="seller-name">{{ book.sellerInfo.name }}</div>
-          </div>
-        </div>
+        <p class="seller-name">{{ seller.username }}</p>
       </div>
-      
-      <div class="action-buttons">
-        <button class="contact-seller-btn">联系卖家</button>
-        <button class="add-to-cart-btn">加入购物车</button>
+      <div v-else class="seller-error">获取卖家信息失败</div>
+
+      <!-- 分割线 -->
+      <div class="divider"></div>
+
+      <!-- 按钮区域 -->
+      <div class="button-group">
+        <button class="contact-btn" @click="contactSeller">联系卖家</button>
+        <button class="cart-btn" @click="addCart">加入购物车</button>
       </div>
     </div>
+
+    <!-- 关闭按钮 -->
+    <button class="close-btn" @click="$emit('close')">✖</button>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'BookDetail',
-  props: {
-    book: {
-      type: Object,
-      required: true
-    }
-  },
-  emits: ['close']
-}
+<script setup>
+import { ref, onMounted } from "vue";
+import userApi from "../../../api/userApi";
+import { cartStore } from "../../../store/cart";
+import { userInfoStore } from "../../../store/user";
+import { ElMessage } from "element-plus";
+
+// 默认书籍封面
+const defaultBookCover = '/src/assets/img/default-book-cover.jpg';
+
+// 接收 book 对象
+const props = defineProps({
+  book: Object
+});
+
+const emit = defineEmits(['close']);
+
+// 使用 store
+const user = userInfoStore();
+const cart = cartStore();
+
+const seller = ref(null);  // 卖家信息
+const isLoading = ref(true);  // 加载状态
+
+// 图片加载失败时的处理
+const handleImageError = (event) => {
+  event.target.src = defaultBookCover;
+};
+
+// 获取卖家信息
+const fetchSellerInfo = async (sellerId) => {
+  try {
+    isLoading.value = true;
+    const res = await userApi.getUserById(sellerId);
+    seller.value = res.data.data;
+  } catch (error) {
+    console.error("获取卖家信息失败:", error);
+    seller.value = null;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 联系卖家
+const contactSeller = () => {
+  // 这里可以实现联系卖家的逻辑
+  ElMessage.info("联系卖家功能");
+};
+
+// 加入购物车
+const addCart = () => {
+  // 这里可以实现加入购物车的逻辑
+  ElMessage.info("加入购物车功能");
+};
+
+// 在组件挂载时获取卖家信息
+onMounted(async () => {
+  if (props.book && props.book.seller_id) {
+    await fetchSellerInfo(props.book.seller_id);
+  } else {
+    isLoading.value = false;
+  }
+});
 </script>
 
 <style scoped>
-/* 整体布局 */
-.book-detail-modal {
+.book-detail {
   display: flex;
-  flex-direction: column;
   background: white;
   border-radius: 16px;
-  max-width: 800px;
-  width: 90%;
+  width: 800px;
   height: 500px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   position: relative;
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #666;
-}
-
-.close-button:hover {
-  color: #333;
-}
-
-.modal-content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+.book-image-container {
+  width: 300px;
   height: 100%;
-  overflow: hidden;
-}
-
-.loading-seller {
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100%;
-}
-
-/* 骨架屏样式 */
-.skeleton-loader {
-  display: flex;
-  gap: 20px;
+  justify-content: center;
   padding: 20px;
 }
 
-.skeleton-image {
-  width: 200px;
-  height: 300px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-.skeleton-info {
-  flex: 1;
-}
-
-.skeleton-line {
-  height: 16px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  border-radius: 4px;
-  animation: loading 1.5s infinite;
-  margin-bottom: 10px;
-}
-
-.title-line {
-  width: 80%;
-}
-
-.author-line {
-  width: 60%;
-}
-
-.price-line {
-  width: 40%;
-}
-
-.description-line {
-  width: 90%;
-  height: 40px;
-}
-
-.skeleton-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  margin-top: 20px;
-}
-
-.seller-name-line {
-  width: 50%;
-  height: 16px;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-.book-cover-info {
-  display: flex;
-  gap: 20px;
-}
-
-.book-cover {
-  width: 200px;
-  height: 300px;
+.book-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   border-radius: 12px;
-  overflow: hidden;
 }
 
-.book-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vertical-divider {
+  width: 1px;
+  height: calc(100% - 40px);
+  background: linear-gradient(to bottom, transparent, #ddd, transparent);
+  margin: 20px 0;
 }
 
 .book-info {
   flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.book-info h2 {
+.book-info-block {
+  flex: 1;
+}
+
+.book-title {
   font-size: 24px;
   font-weight: 700;
   color: #333;
   margin: 0 0 12px 0;
 }
 
-.book-info p {
-  font-size: 14px;
+.book-author {
+  font-size: 16px;
   color: #666;
   margin: 8px 0;
+}
+
+.book-price {
+  font-size: 20px;
+  color: #e74c3c;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.book-description {
+  font-size: 14px;
+  color: #666;
+  margin: 16px 0;
+  line-height: 1.5;
+  flex: 1;
 }
 
 .seller-info {
   display: flex;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 12px;
+}
+
+.avatar-container {
+  position: relative;
+  margin-right: 12px;
 }
 
 .seller-avatar {
@@ -230,13 +200,6 @@ export default {
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  margin-right: 12px;
-}
-
-.seller-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .seller-name {
@@ -245,15 +208,29 @@ export default {
   color: #444;
 }
 
-.action-buttons {
+.seller-loading,
+.seller-error {
+  font-size: 14px;
+  color: #888;
+  margin-top: 12px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ddd, transparent);
+  margin: 16px 0;
+}
+
+.button-group {
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 20px;
+  margin-top: 6px;
 }
 
-.contact-seller-btn,
-.add-to-cart-btn {
+.contact-btn,
+.cart-btn {
   width: 140px;
   height: 40px;
   border: none;
@@ -267,14 +244,29 @@ export default {
   justify-content: center;
 }
 
-.contact-seller-btn {
+.contact-btn {
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   color: white;
 }
 
-.add-to-cart-btn {
+.cart-btn {
   background: linear-gradient(135deg, #ff416c, #ff4b2b);
   color: white;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
 }
 
 button:disabled {
