@@ -16,8 +16,20 @@
         <p>加载中...</p>
       </div>
 
+      <!-- 骨架屏加载效果 -->
+      <div v-if="isLoading && displayedBooks.length === 0" class="book-list-masonry">
+        <div v-for="n in 8" :key="n" class="book-item skeleton-item">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-line title-line"></div>
+            <div class="skeleton-line author-line"></div>
+            <div class="skeleton-line price-line"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 书籍列表 -->
-      <transition-group name="fade-masonry" tag="div" class="book-list-masonry">
+      <transition-group v-else name="fade-masonry" tag="div" class="book-list-masonry">
         <div v-for="book in displayedBooks" :key="book.book_id" class="book-item" @click="openBookDetail(book)">
           <!-- 书籍图片 -->
           <img v-if="book.book_img" :src="`data:image/jpeg;base64,${book.book_img}`" alt="book cover"
@@ -127,8 +139,16 @@ const { isSearch, searchKeyword } = storeToRefs(searchStoreData);
 // 加载状态
 const isLoading = ref(false);
 
+// 防抖定时器
+let debounceTimer = null;
+
 // 设置激活的分类并获取书籍数据
 const setActive = async (item, value) => {
+  // 清除之前的防抖定时器
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  
   // 重置显示数量
   displayedCount.value = 12;
   
@@ -137,14 +157,20 @@ const setActive = async (item, value) => {
     title.isActive = title.title === item.title;
   });
 
-  // 显示加载指示器
-  isLoading.value = true;
+  // 防抖处理，避免频繁切换分类时发送过多请求
+  debounceTimer = setTimeout(async () => {
+    // 显示加载指示器
+    isLoading.value = true;
 
-  // 获取书籍数据
-  await fetchBooksByType(value);
+    // 获取书籍数据
+    await fetchBooksByType(value);
 
-  // 隐藏加载指示器
-  isLoading.value = false;
+    // 隐藏加载指示器
+    isLoading.value = false;
+    
+    // 清除定时器引用
+    debounceTimer = null;
+  }, 300); // 300ms 防抖延迟
 };
 
 // 加载更多书籍
@@ -409,6 +435,59 @@ watch(isSearch, async (newValue) => {
   font-size: 24px;
   transform: translateY(-2px);
   /* 调整箭头位置 */
+}
+
+/* 骨架屏样式 */
+.skeleton-item {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  pointer-events: none; /* 骨架屏期间禁用点击 */
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.skeleton-info {
+  padding: 16px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: loading 1.5s infinite;
+  margin-bottom: 10px;
+}
+
+.title-line {
+  width: 80%;
+  height: 20px;
+}
+
+.author-line {
+  width: 60%;
+}
+
+.price-line {
+  width: 40%;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* 遮罩层 */

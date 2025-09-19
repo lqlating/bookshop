@@ -2,6 +2,10 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import bookApi from '../api/bookApi';
 
+// 创建一个简单的缓存对象
+const bookCache = new Map();
+const CACHE_EXPIRATION = 5 * 60 * 1000; // 缓存5分钟
+
 export const bookStore = defineStore('book', () => {
   // 书籍列表
   const bookLists = ref([]);
@@ -53,6 +57,8 @@ export const bookStore = defineStore('book', () => {
   async function addBook(book) {
     try {
       await bookApi.addBook(book);
+      // 清除缓存
+      bookCache.clear();
       fetchBooks(); // 重新获取书籍列表
     } catch (error) {
       console.error("添加书籍失败:", error);
@@ -63,6 +69,8 @@ export const bookStore = defineStore('book', () => {
   async function updateBook(book) {
     try {
       await bookApi.updateBook(book);
+      // 清除缓存
+      bookCache.clear();
       fetchBooks(); // 重新获取书籍列表
     } catch (error) {
       console.error("更新书籍失败:", error);
@@ -73,6 +81,8 @@ export const bookStore = defineStore('book', () => {
   async function deleteBook(bookId) {
     try {
       await bookApi.deleteBook(bookId);
+      // 清除缓存
+      bookCache.clear();
       fetchBooks(); // 重新获取书籍列表
     } catch (error) {
       console.error("删除书籍失败:", error);
@@ -81,9 +91,30 @@ export const bookStore = defineStore('book', () => {
 
   // 根据书籍类型获取书籍列表
   async function fetchBooksByType(bookType) {
+    const cacheKey = `type_${bookType}`;
+    
+    // 检查缓存是否存在且未过期
+    if (bookCache.has(cacheKey)) {
+      const cachedData = bookCache.get(cacheKey);
+      if (Date.now() - cachedData.timestamp < CACHE_EXPIRATION) {
+        // 使用缓存数据
+        bookLists.value = cachedData.data;
+        return;
+      } else {
+        // 缓存过期，删除旧缓存
+        bookCache.delete(cacheKey);
+      }
+    }
+
     try {
       const res = await bookApi.getBooksByType(bookType);
       bookLists.value = res.data.data;
+      
+      // 将数据存入缓存
+      bookCache.set(cacheKey, {
+        data: [...bookLists.value],
+        timestamp: Date.now()
+      });
     } catch (error) {
       console.error(`获取类型 ${bookType} 书籍失败:`, error);
     }
