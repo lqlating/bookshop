@@ -5,27 +5,30 @@
     </div>
     
     <div class="modal-content">
-      <div class="book-cover">
-        <img :src="book.image" alt="book cover" />
+      <!-- 加载状态 -->
+      <div v-if="book.isLoading" class="loading-seller">
+        <p>加载中...</p>
       </div>
       
-      <div class="book-info">
-        <h2>{{ book.title }}</h2>
-        <p>作者: {{ book.author }}</p>
-        <p>价格: ¥{{ book.price }}</p>
-        <p>{{ book.description }}</p>
-        
-        <!-- 卖家信息 -->
-        <div v-if="book.sellerInfo" class="seller-info">
-          <div class="seller-avatar">
-            <img :src="book.sellerInfo.avatar" alt="seller avatar" />
-          </div>
-          <div class="seller-name">{{ book.sellerInfo.name }}</div>
+      <!-- 书籍封面和信息 -->
+      <div v-else class="book-cover-info">
+        <div class="book-cover">
+          <img :src="book.image" alt="book cover" />
         </div>
         
-        <!-- 加载状态 -->
-        <div v-else-if="book.isLoading" class="loading-seller">
-          <p>加载卖家信息中...</p>
+        <div class="book-info">
+          <h2>{{ book.title }}</h2>
+          <p>作者: {{ book.author }}</p>
+          <p>价格: ¥{{ book.price }}</p>
+          <p>{{ book.description }}</p>
+          
+          <!-- 卖家信息 -->
+          <div v-if="book.sellerInfo" class="seller-info">
+            <div class="seller-avatar">
+              <img :src="book.sellerInfo.avatar" alt="seller avatar" />
+            </div>
+            <div class="seller-name">{{ book.sellerInfo.name }}</div>
+          </div>
         </div>
       </div>
       
@@ -125,6 +128,7 @@ export default {
 .loading-seller {
   margin-top: 20px;
   color: #999;
+  text-align: center;
 }
 
 .action-buttons {
