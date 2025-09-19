@@ -21,6 +21,26 @@ const isLoadingMore = ref(false);
 // 书籍列表容器引用
 const bookListContainer = ref(null);
 
+// 预加载卖家信息的缓存
+const sellerInfoCache = new Map();
+
+// 获取卖家信息（带缓存）
+async function fetchSellerInfo(sellerId) {
+  if (sellerInfoCache.has(sellerId)) {
+    return sellerInfoCache.get(sellerId);
+  }
+
+  try {
+    const res = await sellerApi.getSellerById(sellerId);
+    const sellerInfo = res.data.data;
+    sellerInfoCache.set(sellerId, sellerInfo);
+    return sellerInfo;
+  } catch (error) {
+    console.error('获取卖家信息失败:', error);
+    return null;
+  }
+}
+
 // 打开书籍详情
 const openBookDetail = async (book) => {
   console.log('点击了书籍，当前登录状态:', isLogin.value);
@@ -30,8 +50,8 @@ const openBookDetail = async (book) => {
     console.log('设置后的 showLogin 值:', userStore.showLogin);
     return;
   }
-  
-  // 显示加载状态
+
+  // 创建初始加载状态
   const loadingState = {
     image: `data:image/jpeg;base64,${book.book_img}`,
     title: book.book_title,
@@ -43,11 +63,11 @@ const openBookDetail = async (book) => {
     sellerInfo: null,
     isLoading: true
   };
-  
+
   selectedBook.value = loadingState;
-  
+
   try {
-    // 获取卖家信息
+    // 预加载卖家信息
     const sellerInfo = await fetchSellerInfo(book.book_seller_id);
     selectedBook.value.sellerInfo = sellerInfo;
   } catch (error) {
@@ -62,19 +82,6 @@ const openBookDetail = async (book) => {
 // 关闭书籍详情
 const closeBookDetail = () => {
   selectedBook.value = null;
-};
-
-// 获取卖家信息
-async function fetchSellerInfo(sellerId) {
-  try {
-    // 这里需要调用相应的API来获取卖家信息
-    // 假设有一个sellerApi模块
-    const res = await sellerApi.getSellerById(sellerId);
-    return res.data.data;
-  } catch (error) {
-    console.error('获取卖家信息失败:', error);
-    return null;
-  }
 };
 </script>
 
