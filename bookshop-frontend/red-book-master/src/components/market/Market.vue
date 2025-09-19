@@ -9,7 +9,7 @@
     </div>
 
     <!-- 书籍列表（瀑布流布局） -->
-    <div class="book-list-container" ref="bookListContainer">
+    <div class="book-list-container">
       <!-- 加载指示器 -->
       <div v-if="isLoading" class="loading-indicator">
         <div class="spinner"></div>
@@ -18,7 +18,7 @@
 
       <!-- 书籍列表 -->
       <transition-group name="fade-masonry" tag="div" class="book-list-masonry">
-        <div v-for="book in displayedBooks" :key="book.book_id" class="book-item" @click="openBookDetail(book)">
+        <div v-for="book in bookLists" :key="book.book_id" class="book-item" @click="openBookDetail(book)">
           <!-- 书籍图片 -->
           <img v-if="book.book_img" :src="`data:image/jpeg;base64,${book.book_img}`" alt="book cover"
             class="book-image" />
@@ -32,11 +32,6 @@
           </div>
         </div>
       </transition-group>
-      
-      <!-- 加载更多提示 -->
-      <div v-if="isLoadingMore" class="loading-more">加载中...</div>
-      <div v-else-if="hasMoreBooks" class="load-more-tip">滚动加载更多</div>
-      <div v-else-if="displayedBooks.length > 0 && !hasMoreBooks" class="no-more-data">没有更多数据了</div>
     </div>
 
     <!-- 回顶部按钮 -->
@@ -54,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import BookDetail from "./book_detail/book_detail.vue";
 import { titleStore } from "../../store/title";
@@ -68,13 +63,6 @@ const selectedBook = ref(null);
 // 使用 userStore
 const userStore = userInfoStore();
 const { isLogin, showLogin } = storeToRefs(userStore);
-
-// 显示的书籍数量
-const displayedCount = ref(12);
-const isLoadingMore = ref(false);
-
-// 书籍列表容器引用
-const bookListContainer = ref(null);
 
 // 打开书籍详情
 const openBookDetail = (book) => {
@@ -110,16 +98,6 @@ const bookData = bookStore();
 const { fetchBooksByType } = bookData;
 const { bookLists } = storeToRefs(bookData);
 
-// 计算显示的书籍列表
-const displayedBooks = computed(() => {
-  return bookLists.value.slice(0, displayedCount.value);
-});
-
-// 是否还有更多书籍
-const hasMoreBooks = computed(() => {
-  return displayedCount.value < bookLists.value.length;
-});
-
 // 使用 searchStore
 const searchStoreData = searchStore();
 const { isSearch, searchKeyword } = storeToRefs(searchStoreData);
@@ -129,9 +107,6 @@ const isLoading = ref(false);
 
 // 设置激活的分类并获取书籍数据
 const setActive = async (item, value) => {
-  // 重置显示数量
-  displayedCount.value = 12;
-  
   // 设置激活的分类
   titleList.forEach((title) => {
     title.isActive = title.title === item.title;
@@ -147,41 +122,16 @@ const setActive = async (item, value) => {
   isLoading.value = false;
 };
 
-// 加载更多书籍
-const loadMore = () => {
-  if (!hasMoreBooks.value || isLoadingMore.value) return;
-  
-  isLoadingMore.value = true;
-  
-  // 模拟加载延迟
-  setTimeout(() => {
-    displayedCount.value += 12;
-    isLoadingMore.value = false;
-  }, 500);
-};
-
-// 处理滚动事件
+// 监听滚动控制回到顶部按钮的显示
+const showBackToTop = ref(false);
 const handleScroll = () => {
-  if (!bookListContainer.value) return;
-  
-  const { scrollTop, scrollHeight, clientHeight } = bookListContainer.value;
-  if (scrollHeight - scrollTop - clientHeight < 100) { // 距离底部100px时加载更多
-    loadMore();
-  }
-  
-  // 控制回到顶部按钮的显示
-  showBackToTop.value = scrollTop > 300;
+  showBackToTop.value = window.scrollY > 300;
 };
 
 // 回到顶部
 const scrollToTop = () => {
-  if (bookListContainer.value) {
-    bookListContainer.value.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
-
-// 监听滚动控制回到顶部按钮的显示
-const showBackToTop = ref(false);
 
 // 绑定和解绑滚动监听
 onMounted(async () => {
@@ -192,17 +142,11 @@ onMounted(async () => {
   }
   console.log(bookLists.value);
 
-  // 添加滚动事件监听
-  if (bookListContainer.value) {
-    bookListContainer.value.addEventListener("scroll", handleScroll);
-  }
+  window.addEventListener("scroll", handleScroll);
 });
 
 onUnmounted(() => {
-  // 移除滚动事件监听
-  if (bookListContainer.value) {
-    bookListContainer.value.removeEventListener("scroll", handleScroll);
-  }
+  window.removeEventListener("scroll", handleScroll);
 });
 
 // 监听搜索状态变化
@@ -280,12 +224,6 @@ watch(isSearch, async (newValue) => {
   /* 增加底部padding，避免最后一行被渐变遮住 */
 }
 
-.book-list-masonry::after {
-  content: '';
-  display: table;
-  clear: both;
-}
-
 /* 大屏幕：4 列 */
 @media (min-width: 1200px) {
   .book-list-masonry {
@@ -326,7 +264,6 @@ watch(isSearch, async (newValue) => {
   cursor: pointer;
   margin-bottom: 20px;
   /* 书籍项之间的间距 */
-  display: block;
 }
 
 .book-item:hover {
@@ -485,11 +422,5 @@ watch(isSearch, async (newValue) => {
   margin-top: 10px;
   font-size: 14px;
   color: #666;
-}
-
-.loading-more, .load-more-tip, .no-more-data {
-  text-align: center;
-  padding: 20px;
-  color: #888;
 }
 </style>
