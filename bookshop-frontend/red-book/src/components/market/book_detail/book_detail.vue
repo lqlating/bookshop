@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import userApi from "../../../api/userApi";
 import { cartStore } from "../../../store/cart";
 import { userInfoStore } from "../../../store/user";
@@ -77,7 +77,7 @@ const handleImageError = (event) => {
 const fetchSellerInfo = async (sellerId) => {
   try {
     isLoading.value = true;
-    const res = await userApi.getUserById(sellerId);
+    const res = await userApi.SearchUserById(sellerId);
     seller.value = res.data.data;
   } catch (error) {
     console.error("获取卖家信息失败:", error);
@@ -99,11 +99,30 @@ const addCart = () => {
   ElMessage.info("加入购物车功能");
 };
 
-// 在组件挂载时获取卖家信息
+// 监听书籍属性变化
+watch(() => props.book, (newBook) => {
+  if (newBook) {
+    // 如果书籍信息中已经包含卖家信息，则直接使用
+    if (newBook.sellerInfo) {
+      seller.value = newBook.sellerInfo;
+      isLoading.value = false;
+    } 
+    // 否则通过API获取卖家信息
+    else if (newBook.seller_id) {
+      fetchSellerInfo(newBook.seller_id);
+    } 
+    // 如果没有卖家ID，则直接完成加载
+    else {
+      isLoading.value = false;
+    }
+  }
+}, { immediate: true });
+
+// 在组件挂载时获取卖家信息（作为后备方案）
 onMounted(async () => {
-  if (props.book && props.book.seller_id) {
+  if (props.book && props.book.seller_id && !seller.value) {
     await fetchSellerInfo(props.book.seller_id);
-  } else {
+  } else if (!props.book || !props.book.seller_id) {
     isLoading.value = false;
   }
 });

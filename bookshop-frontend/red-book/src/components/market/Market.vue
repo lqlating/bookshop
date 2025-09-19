@@ -73,6 +73,7 @@ import { titleStore } from "../../store/title";
 import { bookStore } from "../../store/books";
 import { searchStore } from "../../store/search";
 import { userInfoStore } from "../../store/user";
+import userApi from "../../api/userApi";
 
 // 选中的书籍
 const selectedBook = ref(null);
@@ -88,8 +89,42 @@ const isLoadingMore = ref(false);
 // 书籍列表容器引用
 const bookListContainer = ref(null);
 
+// 卖家信息缓存
+const sellerCache = new Map();
+const CACHE_EXPIRATION = 5 * 60 * 1000; // 5分钟缓存
+
+// 获取卖家信息（带缓存）
+async function fetchSellerInfo(sellerId) {
+  // 检查缓存
+  if (sellerCache.has(sellerId)) {
+    const cached = sellerCache.get(sellerId);
+    if (Date.now() - cached.timestamp < CACHE_EXPIRATION) {
+      return cached.data;
+    } else {
+      // 缓存过期，删除旧缓存
+      sellerCache.delete(sellerId);
+    }
+  }
+
+  try {
+    const res = await userApi.SearchUserById(sellerId);
+    const sellerInfo = res.data.data;
+    
+    // 存入缓存
+    sellerCache.set(sellerId, {
+      data: sellerInfo,
+      timestamp: Date.now()
+    });
+    
+    return sellerInfo;
+  } catch (error) {
+    console.error('获取卖家信息失败:', error);
+    return null;
+  }
+}
+
 // 打开书籍详情
-const openBookDetail = (book) => {
+const openBookDetail = async (book) => {
   console.log('点击了书籍，当前登录状态:', isLogin.value);
   if (!isLogin.value) {
     console.log('用户未登录，尝试显示登录框');
@@ -97,6 +132,14 @@ const openBookDetail = (book) => {
     console.log('设置后的 showLogin 值:', userStore.showLogin);
     return;
   }
+
+  // 预先获取卖家信息
+  let sellerInfo = null;
+  if (book.book_seller_id) {
+    sellerInfo = await fetchSellerInfo(book.book_seller_id);
+  }
+
+  // 构造完整的书籍信息对象
   selectedBook.value = {
     image: `data:image/jpeg;base64,${book.book_img}`,
     title: book.book_title,
@@ -105,6 +148,7 @@ const openBookDetail = (book) => {
     description: book.book_descripe,
     seller_id: book.book_seller_id,
     book_id: book.book_id,
+    sellerInfo: sellerInfo // 添加卖家信息
   };
 };
 
