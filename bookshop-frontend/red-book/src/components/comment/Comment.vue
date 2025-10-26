@@ -89,7 +89,8 @@ import axios from 'axios';
 import { editInfoStore } from '../../store/isEdit';
 import ReportDialog from '../report/ReportDialog.vue';
 import { MoreFilled } from '@element-plus/icons-vue';
-import { ElMessage, ElDialog, ElButton } from 'element-plus';
+import { ElMessage } from 'element-plus';
+import userApi from '../../api/userApi';
 
 const editStore = editInfoStore();
 const { isEditing } = storeToRefs(editStore);
@@ -127,7 +128,7 @@ const isDeleting = ref(false);
 // 获取用户信息
 const searchUserById = async (userId) => {
   try {
-    const res = await axios.get(`http://localhost:8080/api/SearchUserById/${userId}`);
+    const res = await userApi.SearchUserById(userId);
     Object.assign(userInfo, res.data.data);
     userName.value = userInfo[0].username;
     avatar.value = userInfo[0].avatar_base64;

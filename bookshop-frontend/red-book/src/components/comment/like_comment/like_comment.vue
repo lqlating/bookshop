@@ -58,7 +58,7 @@ function handleInput(event) {
   replyText.value = event.target.value;
 }
 </script>
-
+avatar
 <template>
   <div class="main-body" v-if="props.replyComment">
     <span class="avatar">
