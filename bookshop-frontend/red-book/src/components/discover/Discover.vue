@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue';
 import { articleStore } from '../../store/article';
 import { commentInfoStore } from '../../store/comment';
 import { searchStore } from '../../store/search';
-import { Waterfall } from 'vue-waterfall-plugin-next';
+import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next';
 import 'vue-waterfall-plugin-next/dist/style.css';
 import ArticleInner from '../subArticle/article_inner.vue';
 import Like_button from '../subArticle/like_button.vue';
@@ -100,6 +100,7 @@ watch(displayArticles, (newArticles) => {
 function handleImageLoad(articleId) {
   imageLoaded.value[articleId] = true;
 }
+
 
 // 滚动监听，实现懒加载
 const handleScroll = () => {
@@ -309,16 +310,11 @@ onUnmounted(() => {
           <Waterfall v-else :list="displayArticles" :key="currentTitleValue" :breakpoints="breakpoints" :gutter="25">
             <template #item="{ item }">
               <div class="card">
-                <div class="image-container" @click="selectArticle(item)">
-                  <img v-if="item.img" :src="item.img" alt="Article Image" 
-                    class="lazy" loading="lazy" 
+                <transition name="fade">
+                  <LazyImg class="lazy" :url="item.img || '/images/default_image.jpg'"
                     @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'"
-                    v-show="imageLoaded[item.article_id]" />
-                  <div v-else class="image-placeholder">暂无图片</div>
-                  <div v-if="item.is_review === 0" class="unreviewed-overlay">
-                    <span class="unreviewed-text">未审核</span>
-                  </div>
-                </div>
+                    v-show="imageLoaded[item.article_id]" @click="selectArticle(item)" />
+                </transition>
                 <p class="text" @click="selectArticle(item)">{{ item.title }}</p>
                 <Like_button :item="item" :key="item.article_id + '-like'" :out="true" />
               </div>
@@ -388,18 +384,11 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.image-container {
-  position: relative;
-  width: 100%;
-  cursor: pointer;
-}
-
 .lazy {
-  width: 100%;
-  height: auto;
   border: 0.1px solid rgb(231, 227, 227);
   border-radius: 16px;
-  display: block;
+  position: relative;
+  overflow: hidden;
   transition: transform 0.3s ease;
 }
 
@@ -407,39 +396,21 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
-.image-placeholder {
-  width: 100%;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
-  color: #888;
-  font-size: 14px;
-  border: 0.1px solid rgb(231, 227, 227);
-  border-radius: 16px;
-}
-
-.unreviewed-overlay {
+.lazy::after {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 16px;
+  background-color: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
-.unreviewed-text {
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  padding: 8px 16px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 4px;
+.lazy:hover::after {
+  opacity: 1;
 }
 
 .text {
