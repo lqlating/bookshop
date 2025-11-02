@@ -185,7 +185,7 @@ public class ArticleController {
         // }
         
         // 直接使用imgUrl字段存储图片链接
-        articleRequest.setImgData(null); // 不再需要存储图片二进制数据
+        // articleRequest.setImgData(null); // 不再需要存储图片二进制数据
         
         articleService.save(articleRequest);
         return Result.success("Article added successfully");
