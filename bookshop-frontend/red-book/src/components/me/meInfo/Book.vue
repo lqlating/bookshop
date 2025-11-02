@@ -15,7 +15,7 @@
                 <div v-for="book in sellerBooks" :key="book.book_id" class="book-item-wrapper"
                     @contextmenu.prevent="handleContextMenu($event, book)">
                     <book-item :book="{
-                        image: book.book_img_base64 || defaultBookCover,
+                        image: book.book_img || defaultBookCover,
                         title: book.book_title,
                         author: book.book_writer,
                         price: book.book_price,
@@ -101,7 +101,7 @@ const selectedBook = ref(null);
 // 打开书籍详情
 const openBookDetail = (book) => {
     selectedBook.value = {
-        image: book.book_img_base64 || defaultBookCover.value,
+        image: book.book_img || defaultBookCover.value,
         title: book.book_title,
         author: book.book_writer,
         price: book.book_price,

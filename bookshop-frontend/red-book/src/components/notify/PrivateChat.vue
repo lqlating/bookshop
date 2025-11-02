@@ -100,6 +100,9 @@ const showToast = (message) => {
 const openChatDialog = async (conversation) => {
     console.log('Opening chat dialog with conversation:', conversation);
 
+    // 先清除之前的消息，避免闪现
+    messageStoreInstance.clearCurrentConversation();
+    
     // 计算滚动条宽度
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
@@ -252,6 +255,8 @@ const scrollToBottom = () => {
 const handleCloseDialog = () => {
     document.body.classList.remove('chat-open');
     showChatDialog.value = false;
+    // 清除消息状态，避免切换到其他对话框时显示旧消息
+    messageStoreInstance.clearCurrentConversation();
     currentChat.value = null;
     messageContent.value = '';
 };

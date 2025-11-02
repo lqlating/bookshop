@@ -15,7 +15,7 @@
         <div class="cart-list" ref="cartList">
           <template v-if="cartLists.length > 0">
             <Card v-for="(item, index) in cartLists" :key="item.cart_id" v-model:selected="cartLists[index].selected"
-              :image="getImageSrc(item.book.book_img || item.book.book_img_base64)" :title="item.book.book_title"
+              :image="getImageSrc(item.book.book_img)" :title="item.book.book_title"
               :author="item.book.book_writer" :price="item.book.book_price" @remove-item="removeItem(item.cart_id)" />
           </template>
           <template v-else>
@@ -37,7 +37,7 @@
           <div class="item" v-for="(item, index) in visibleItems" :key="index" @mouseenter="hoverItemIndex = index"
             @mouseleave="hoverItemIndex = null">
             <div class="item-image-wrapper">
-              <img :src="getImageSrc(item.book.book_img || item.book.book_img_base64)" alt="书籍封面" class="item-image"
+              <img :src="getImageSrc(item.book.book_img)" alt="书籍封面" class="item-image"
                 :class="{ 'image-hover': hoverItemIndex === index }" />
               <button v-if="hoverItemIndex === index" class="remove-item-btn" @click="removeFromCheckout(item)">
                 ×
