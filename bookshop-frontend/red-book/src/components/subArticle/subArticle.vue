@@ -1,6 +1,6 @@
 <template>
   <div class="article-inner" v-show="article_inner">
-    <span class="article_img_inner"><img :src="img_url" alt="" /></span>
+    <span class="article_img_inner"><img :src="img" alt="" /></span>
     <span>
       <div class="user-inner">
         <img :src="avatar" alt="" />
@@ -32,7 +32,7 @@
   <div class="mask" v-show="article_inner" @click="article_inner = false"></div>
   <div class="content-item article-container">
     <div class="main-area" @click="getCommentThing()">
-      <img class="img-area" :src="img_url" alt="" />
+      <img class="img-area" :src="img" alt="" />
       <div class="txt-area">{{ articleTitle }}</div>
     </div>
     <div class="article-bottom">
@@ -76,7 +76,7 @@ const { showLogin, isLogin, targetIds, userThing } = storeToRefs(userStore);
 
 const {
   title: articleTitle,
-  img_url,
+  img,
   like_count,
   star_count,
   author_id,

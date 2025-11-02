@@ -4,11 +4,11 @@
       <template #item="{ item }">
         <div class="card" @contextmenu="(event) => $emit('contextmenu', event, item)">
           <div class="image-container" @click="selectArticle(item)">
-            <transition name="fade">
-              <LazyImg class="lazy" :url="item.img_url || '/images/default_image.jpg'"
-                @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'"
-                v-show="imageLoaded[item.article_id]" />
-            </transition>
+            <img v-if="item.img" :src="item.img" alt="Article Image" 
+              class="lazy" loading="lazy" 
+              @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'"
+              v-show="imageLoaded[item.article_id]" />
+            <div v-else class="image-placeholder">暂无图片</div>
             <div v-if="item.is_review === 0" class="unreviewed-overlay">
               <span class="unreviewed-text">未审核</span>
             </div>
@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next';
+import { Waterfall } from 'vue-waterfall-plugin-next';
 import ArticleInner from '../subArticle/article_inner.vue';
 import Like_button from '../subArticle/like_button.vue';
 
@@ -86,10 +86,11 @@ function closeArticleInner() {
 }
 
 .lazy {
+  width: 100%;
+  height: auto;
   border: 0.1px solid rgb(231, 227, 227);
   border-radius: 16px;
-  position: relative;
-  overflow: hidden;
+  display: block;
   transition: transform 0.3s ease;
 }
 
@@ -97,21 +98,17 @@ function closeArticleInner() {
   transform: scale(1.05);
 }
 
-.lazy::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+.image-placeholder {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.lazy:hover::after {
-  opacity: 1;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #888;
+  font-size: 14px;
+  border: 0.1px solid rgb(231, 227, 227);
+  border-radius: 16px;
 }
 
 .unreviewed-overlay {

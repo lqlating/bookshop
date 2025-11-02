@@ -56,7 +56,7 @@ async function getReplyComent() {
             // 获取文章信息，并进行空值检查
             const articleRes = await articleApi.getArticlesByIds([comment.article_id]);
             if (articleRes?.data?.data?.length > 0) {
-                comment.article_bark = articleRes.data.data[0].img_url; // 假设获取的文章信息是文章封面或标题
+                comment.article_bark = articleRes.data.data[0].img; // 使用文章的图片路径字段
             } else {
                 comment.article_bark = '无文章信息';
             }

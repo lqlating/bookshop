@@ -2,7 +2,7 @@
   <div class="article-inner" v-if="localArticleInner">
     <span class="article_img_inner" @click="openOverlay">
       <div class="image-container">
-        <img :src="img_url || '/images/default_image.jpg'" alt="Article Image"
+        <img :src="img || '/images/default_image.jpg'" alt="Article Image"
           :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
         <div v-if="props.article.is_review === 0" class="unreviewed-overlay">
           <span class="unreviewed-text">未审核</span>
@@ -57,7 +57,7 @@
 
     <!-- 毛玻璃遮罩层 -->
     <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
-      <img :src="img_url || '/images/default_image.jpg'" alt="Overlay Image"
+      <img :src="img || '/images/default_image.jpg'" alt="Overlay Image"
         class="overlay-image" />
     </div>
   </div>
@@ -98,7 +98,7 @@ const props = defineProps({
 // 从 props 解构数据
 let {
   title: articleTitle,
-  img_url,
+  img,
   like_count,
   star_count,
   author_id,
@@ -130,10 +130,10 @@ const commentCount = computed(() => commentCountByArticleId[article_id] || 0);
 const comment_content = computed(() => commentsByArticleId[article_id] || []);
 const is_subscript = computed(() => targetIds.value.includes(author_id));
 const isTallImage = computed(() => {
-  if (img_url) {
-    const img = new Image();
-    img.src = img_url;
-    return img.height > img.width;
+  if (img) {
+    const imgElement = new Image();
+    imgElement.src = img;
+    return imgElement.height > imgElement.width;
   }
   return false;
 });
@@ -244,7 +244,7 @@ onMounted(() => {
 
 watch(() => props.article, async (newValue) => {
   articleTitle = newValue.title;
-  img_url = newValue.img_url;
+  img = newValue.img;
   like_count = newValue.like_count;
   star_count = newValue.star_count;
   author_id = newValue.author_id;
