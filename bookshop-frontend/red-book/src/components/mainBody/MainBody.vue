@@ -96,11 +96,6 @@ const { resetSearch } = search;
 const conversationStoreInstance = conversationStore();
 const { totalUnreadCount } = storeToRefs(conversationStoreInstance);
 
-// 调试：打印 userThing 数据
-console.log('MainBody组件 - userThing:', userThing.value);
-console.log('MainBody组件 - userThing.avatar:', userThing.value?.avatar);
-console.log('MainBody组件 - userThing的所有字段:', Object.keys(userThing.value));
-
 const router = useRouter();
 const route = useRoute();
 

@@ -84,11 +84,6 @@ public class UserController {
         User user = userService.verify(password, account);
         if (user != null) {
             // 不再需要将 avatar 转换为 base64
-            // if (user.getAvatar() != null) {
-            //     String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
-            //     user.setAvatar_base64(base64Avatar);
-            //     user.setAvatar(null);
-            // }
             return Result.success(user);
         } else {
             return Result.error("密码或者账号错误！请重新输入");

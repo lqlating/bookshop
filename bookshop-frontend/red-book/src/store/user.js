@@ -54,14 +54,12 @@ export const userInfoStore = defineStore('user', () => {
     // 从 sessionStorage 恢复用户信息
     const storedUserInfo = getStoredUserData();
     if (storedUserInfo) {
-        console.log('从 sessionStorage 恢复的用户信息:', storedUserInfo);
         // 兼容旧数据：如果存储的是 avatar_base64，转换为 avatar
         if (storedUserInfo.avatar_base64 && !storedUserInfo.avatar) {
             storedUserInfo.avatar = storedUserInfo.avatar_base64;
             delete storedUserInfo.avatar_base64;
         }
         Object.assign(userThing, storedUserInfo);
-        console.log('恢复后的 userThing:', userThing);
     }
 
     // 设置用户信息
@@ -108,11 +106,6 @@ export const userInfoStore = defineStore('user', () => {
                     throw new Error(`您的账号已被封禁至${formattedDate}，有问题请联系管理员`);
                 }
 
-                // 调试：打印后端返回的完整用户数据
-                console.log('登录返回的用户数据:', data.data);
-                console.log('avatar字段:', data.data.avatar);
-                console.log('avatar_base64字段:', data.data.avatar_base64);
-
                 const userData = {
                     username: data.data.username,
                     email: data.data.email,
@@ -126,9 +119,7 @@ export const userInfoStore = defineStore('user', () => {
                     ban_until: data.data.ban_until
                 };
 
-                console.log('准备设置的用户数据:', userData);
                 setUserInfo(userData);
-                console.log('设置后的 userThing:', userThing);
                 // 登录成功后清空登录凭据
                 account.value = '';
                 password.value = '';
