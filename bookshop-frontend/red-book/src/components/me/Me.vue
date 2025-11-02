@@ -60,6 +60,10 @@ const userStore = userInfoStore();
 const { userThing } = storeToRefs(userStore);
 const { username, email, id, gender, introduction } = userThing.value;
 
+// 调试：打印 userThing 数据
+console.log('Me组件 - userThing:', userThing.value);
+console.log('Me组件 - userThing.avatar:', userThing.value.avatar);
+
 const router = useRouter();
 const isLoading = ref(true); // 新增一个变量来跟踪加载状态
 const loading = ref(true);
