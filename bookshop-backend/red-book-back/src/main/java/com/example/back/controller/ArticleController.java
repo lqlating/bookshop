@@ -1,7 +1,6 @@
 package com.example.back.controller;
 
 import com.example.back.pojo.Article;
-import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import com.example.back.pojo.Result;
 import com.example.back.service.ArticleService;
@@ -40,9 +39,9 @@ public class ArticleController {
     public Result list(@PathVariable String type,
                        @RequestParam Integer page,
                        @RequestParam Integer size) {
-        List<ArticleLite> articleList = articleService.listLite(type, page, size);
+        List<Article> articleList = articleService.listFull(type, page, size);
 
-        return Result.success(articleList);  // 返回精简版文章列表
+        return Result.success(articleList);  // 返回完整文章列表
     }
 
     @Operation(summary = "Filter content based on type excluding an author", description = "Returns a list of articles filtered by type, is_review = 1, is_banned = 0, and author_id not equal to the specified id")
@@ -57,9 +56,9 @@ public class ArticleController {
     public Result listExcludeAuthor(@PathVariable String type, @PathVariable Integer id,
                                     @RequestParam Integer page,
                                     @RequestParam Integer size) {
-        List<ArticleLite> articleList = articleService.listLiteExcludeAuthor(type, id, page, size);
+        List<Article> articleList = articleService.listFullExcludeAuthor(type, id, page, size);
 
-        return Result.success(articleList);  // 返回精简版文章列表
+        return Result.success(articleList);  // 返回完整文章列表
     }
 
     @Operation(summary = "Add like to an article", description = "Increases the like count for the specified article")

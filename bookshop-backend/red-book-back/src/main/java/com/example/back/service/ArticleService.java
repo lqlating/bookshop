@@ -1,7 +1,6 @@
 package com.example.back.service;
 
 import com.example.back.pojo.Article;
-import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +10,11 @@ import java.util.List;
 public interface ArticleService {
     List<Article> list(String type, Integer page, Integer size);
 
-    // 新增：获取指定类型且作者ID不等于指定ID的文章
-    List<Article> listExcludeAuthor(String type, Integer id, Integer page, Integer size);
+    // 修改：获取指定类型且作者ID不等于指定ID的文章（完整字段）
+    List<Article> listFull(String type, Integer page, Integer size);
+
+    // 修改：获取指定类型且作者ID不等于指定ID的文章（完整字段）
+    List<Article> listFullExcludeAuthor(String type, Integer id, Integer page, Integer size);
 
     void addLike(Integer articleId);
 
@@ -26,7 +28,7 @@ public interface ArticleService {
 
     List<Article> searchByTitleOrContent(String keyword, Integer page, Integer size);
 
-    // 新增：根据关键词搜索文章且排除指定作者
+    // 修改：根据关键词搜索文章且排除指定作者（完整字段）
     List<Article> searchByTitleOrContentExcludeAuthor(String keyword, Integer id, Integer page, Integer size);
 
     List<Article> getArticlesByAuthorId(Integer authorId, Integer page, Integer size);
@@ -55,10 +57,4 @@ public interface ArticleService {
 
     // 根据关键词搜索文章标题或内容，可选排除指定作者的文章
     List<Article> searchByTitleOrContentWithFilter(String keyword, Integer excludeAuthorId);
-    
-    // 新增：获取精简版文章列表
-    List<ArticleLite> listLite(String type, Integer page, Integer size);
-    
-    // 新增：获取精简版文章列表（排除指定作者）
-    List<ArticleLite> listLiteExcludeAuthor(String type, Integer id, Integer page, Integer size);
 }

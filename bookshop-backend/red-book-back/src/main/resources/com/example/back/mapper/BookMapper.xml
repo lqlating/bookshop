@@ -6,16 +6,12 @@
 <mapper namespace="com.example.back.mapper.BookMapper">
 
     <select id="listBooks" resultType="com.example.back.pojo.Book">
-        SELECT book_id, book_img, book_seller_id, book_price, book_writer, book_title,
-               book_type, book_descripe, is_review, is_banned
-        FROM book
+        SELECT * FROM book
         WHERE is_review = 1 AND is_banned = 0
     </select>
 
     <select id="getBookById" resultType="com.example.back.pojo.Book">
-        SELECT book_id, book_img, book_seller_id, book_price, book_writer, book_title,
-               book_type, book_descripe, is_review, is_banned
-        FROM book 
+        SELECT * FROM book 
         WHERE book_id = #{book_id} AND is_review = 1 AND is_banned = 0
     </select>
 
