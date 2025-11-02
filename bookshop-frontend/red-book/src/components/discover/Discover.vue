@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue';
 import { articleStore } from '../../store/article';
 import { commentInfoStore } from '../../store/comment';
 import { searchStore } from '../../store/search';
-import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next';
+import { Waterfall } from 'vue-waterfall-plugin-next';
 import 'vue-waterfall-plugin-next/dist/style.css';
 import ArticleInner from '../subArticle/article_inner.vue';
 import Like_button from '../subArticle/like_button.vue';
@@ -311,10 +311,10 @@ onUnmounted(() => {
             <template #item="{ item }">
               <div class="card">
                 <div class="image-container" @click="selectArticle(item)">
-                  <transition name="fade">
-                    <LazyImg class="lazy" :url="item.img || '/images/default_image.jpg'"
-                      @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'" />
-                  </transition>
+                  <img v-if="item.img" :src="item.img" alt="Article Image" 
+                    class="lazy" loading="lazy" 
+                    :key="item.article_id + '-img'" />
+                  <div v-else class="image-placeholder">暂无图片</div>
                   <div v-if="item.is_review === 0" class="unreviewed-overlay">
                     <span class="unreviewed-text">未审核</span>
                   </div>
@@ -395,13 +395,13 @@ onUnmounted(() => {
 }
 
 .lazy {
+  width: 100%;
+  height: auto;
   border: 0.1px solid rgb(231, 227, 227);
   border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease;
-  width: 100%;
   display: block;
+  transition: transform 0.3s ease;
+  object-fit: cover;
 }
 
 .lazy:hover {
@@ -423,6 +423,19 @@ onUnmounted(() => {
 
 .lazy:hover::after {
   opacity: 1;
+}
+
+.image-placeholder {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #888;
+  font-size: 14px;
+  border: 0.1px solid rgb(231, 227, 227);
+  border-radius: 16px;
 }
 
 .unreviewed-overlay {
