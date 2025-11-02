@@ -6,8 +6,7 @@
           <div class="image-container" @click="selectArticle(item)">
             <transition name="fade">
               <LazyImg class="lazy" :url="item.img || '/images/default_image.jpg'"
-                @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'"
-                v-show="imageLoaded[item.article_id]" />
+                @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'" />
             </transition>
             <div v-if="item.is_review === 0" class="unreviewed-overlay">
               <span class="unreviewed-text">未审核</span>
