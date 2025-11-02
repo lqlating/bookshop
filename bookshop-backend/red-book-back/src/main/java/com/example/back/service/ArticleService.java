@@ -10,10 +10,13 @@ import java.util.List;
 public interface ArticleService {
     List<Article> list(String type, Integer page, Integer size);
 
-    // 修改：获取指定类型且作者ID不等于指定ID的文章（完整字段）
+    // 新增：获取指定类型且作者ID不等于指定ID的文章
+    List<Article> listExcludeAuthor(String type, Integer id, Integer page, Integer size);
+
+    // 新增：获取完整字段的文章列表
     List<Article> listFull(String type, Integer page, Integer size);
 
-    // 修改：获取指定类型且作者ID不等于指定ID的文章（完整字段）
+    // 新增：获取完整字段且排除指定作者的文章列表
     List<Article> listFullExcludeAuthor(String type, Integer id, Integer page, Integer size);
 
     void addLike(Integer articleId);
@@ -28,7 +31,7 @@ public interface ArticleService {
 
     List<Article> searchByTitleOrContent(String keyword, Integer page, Integer size);
 
-    // 修改：根据关键词搜索文章且排除指定作者（完整字段）
+    // 新增：根据关键词搜索文章且排除指定作者
     List<Article> searchByTitleOrContentExcludeAuthor(String keyword, Integer id, Integer page, Integer size);
 
     List<Article> getArticlesByAuthorId(Integer authorId, Integer page, Integer size);
