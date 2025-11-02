@@ -3,7 +3,7 @@
     <div class="left" :style="leftStyle">
       <!-- 显示加载中的占位符或头像 -->
       <div v-if="loading" class="avatar-skeleton"></div>
-      <img v-else class="avatar" :src="`data:image/png;base64,${avatar}`" />
+      <img v-else class="avatar" :src="avatar" />
 
       <!-- 显示加载中的用户名占位符或用户名 -->
       <span v-if="loading" class="username-skeleton"></span>
@@ -63,7 +63,7 @@ async function getAuthorThing() {
   // console.log("this place",props.item.author_id)
   const res = await userApi.SearchUserById(props.item.author_id);
   username.value = res.data.data[0].username;
-  avatar.value = res.data.data[0].avatar_base64;
+  avatar.value = res.data.data[0].avatar;
   loading.value = false; // 数据加载完成，设置loading为false
 }
 

@@ -2,7 +2,7 @@
   <div class="article-inner" v-if="localArticleInner">
     <span class="article_img_inner" @click="openOverlay">
       <div class="image-container">
-        <img :src="img_url ? `data:image/png;base64,${img_url}` : '/images/default_image.jpg'" alt="Article Image"
+        <img :src="img_url || '/images/default_image.jpg'" alt="Article Image"
           :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
         <div v-if="props.article.is_review === 0" class="unreviewed-overlay">
           <span class="unreviewed-text">未审核</span>
@@ -13,7 +13,7 @@
       <div class="user-inner">
         <!-- 头像使用右键点击 -->
         <div class="avatar-container">
-          <img v-if="avatar" :src="avatar ? `data:image/png;base64,${avatar}` : '/images/default_image.jpg'"
+          <img v-if="avatar" :src="avatar || '/images/default_image.jpg'"
             alt="User Avatar" @contextmenu.prevent="handleAvatarRightClick" />
 
           <!-- 简单的自定义右键菜单 -->
@@ -57,7 +57,7 @@
 
     <!-- 毛玻璃遮罩层 -->
     <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
-      <img :src="img_url ? `data:image/png;base64,${img_url}` : '/images/default_image.jpg'" alt="Overlay Image"
+      <img :src="img_url || '/images/default_image.jpg'" alt="Overlay Image"
         class="overlay-image" />
     </div>
   </div>
@@ -132,7 +132,7 @@ const is_subscript = computed(() => targetIds.value.includes(author_id));
 const isTallImage = computed(() => {
   if (img_url) {
     const img = new Image();
-    img.src = `data:image/png;base64,${img_url}`;
+    img.src = img_url;
     return img.height > img.width;
   }
   return false;
@@ -149,7 +149,7 @@ async function loadArticleData() {
     const result = await userApi.SearchUserById(author_id);
     userInfo.value = result.data.data[0];
     userName.value = userInfo.value.username;
-    avatar.value = userInfo.value.avatar_base64;
+    avatar.value = userInfo.value.avatar;
     await getComments(article_id);
     await getCommentCount(article_id);
   } catch (error) {

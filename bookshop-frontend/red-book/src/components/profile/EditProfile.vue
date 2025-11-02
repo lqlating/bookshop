@@ -127,11 +127,11 @@ onMounted(() => {
         formData.email = props.userData.email;
         formData.gender = props.userData.gender;
         formData.introduction = props.userData.introduction || '';
-        formData.avatar_base64 = props.userData.avatar_base64;
+        formData.avatar_base64 = props.userData.avatar;
 
         // 设置头像预览
-        if (props.userData.avatar_base64) {
-            avatarPreview.value = `data:image/png;base64,${props.userData.avatar_base64}`;
+        if (props.userData.avatar) {
+            avatarPreview.value = props.userData.avatar;
         }
 
         // 初始验证一次表单

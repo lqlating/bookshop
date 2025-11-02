@@ -3,7 +3,7 @@
     @contextmenu.prevent="handleCommentRightClick">
     <div class="img-wrapper">
       <div class="avatar-container">
-        <img :src="`data:image/png;base64,${avatar}`"
+        <img :src="avatar"
           :style="{ width: grandparent_id ? '24px' : '40px', height: grandparent_id ? '24px' : '40px' }" alt=""
           @contextmenu.prevent="handleAvatarRightClick">
 
@@ -131,7 +131,7 @@ const searchUserById = async (userId) => {
     const res = await userApi.SearchUserById(userId);
     Object.assign(userInfo, res.data.data);
     userName.value = userInfo[0].username;
-    avatar.value = userInfo[0].avatar_base64;
+    avatar.value = userInfo[0].avatar;
   } catch (error) {
     console.error('搜索用户失败：', error);
   }

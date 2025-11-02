@@ -62,7 +62,7 @@ avatar
 <template>
   <div class="main-body" v-if="props.replyComment">
     <span class="avatar">
-      <img class="avatar-inner" :src="`data:image/png;base64,${props.replyComment.avatar_base64}`" alt="用户头像">
+      <img class="avatar-inner" :src="props.replyComment.avatar" alt="用户头像">
     </span>
 
     <span class="txt-area">
@@ -105,7 +105,7 @@ avatar
     </span>
 
     <span class="article-face">
-      <img class="article-inner" :src="`data:image/png;base64,${props.replyComment.article_bark}`" alt="文章图片">
+      <img class="article-inner" :src="props.replyComment.article_bark" alt="文章图片">
     </span>
 
   </div>

@@ -53,9 +53,9 @@
       <template v-if="!isMyBooks">
         <div v-if="isLoading" class="seller-loading">加载卖家信息中...</div>
         <div v-else-if="seller" class="seller-info">
-          <div v-if="!seller.avatar_base64" class="avatar-skeleton"></div>
+          <div v-if="!seller.avatar" class="avatar-skeleton"></div>
           <div v-else class="avatar-container">
-            <img :src="`data:image/png;base64,${seller.avatar_base64}`" alt="卖家头像" class="seller-avatar"
+            <img :src="seller.avatar" alt="卖家头像" class="seller-avatar"
               @contextmenu.prevent="handleAvatarRightClick" />
 
             <!-- 简单的自定义右键菜单 -->
