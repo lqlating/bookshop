@@ -3,7 +3,7 @@
     <div class="main-part">
       <span class="avatar-wrapper">
         <div v-if="loading" class="avatar-skeleton"></div>
-        <img v-else class="avatar" :src="userThing.avatar_base64" alt="用户头像">
+        <img v-else class="avatar" :src="userThing.avatar" alt="用户头像">
       </span>
       <span class="info-thing">
         <div class="username-container">

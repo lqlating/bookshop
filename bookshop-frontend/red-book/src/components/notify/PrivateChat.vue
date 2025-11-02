@@ -62,10 +62,15 @@ const isCurrentUserMessage = (message) => {
 // 获取头像URL
 const getAvatarUrl = (avatarData) => {
     if (!avatarData) return '/default-avatar.png';
+    // 如果已经是完整的 data:image URL，直接返回
     if (avatarData.startsWith('data:image')) return avatarData;
+    // 如果是路径格式（以 / 开头），直接返回
+    if (avatarData.startsWith('/')) return avatarData;
+    // 如果是纯 base64 字符串（不包含 data: 前缀），添加前缀
     if (/^[A-Za-z0-9+/]+={0,2}$/.test(avatarData)) {
         return `data:image/jpeg;base64,${avatarData}`;
     }
+    // 其他情况直接返回
     return avatarData;
 };
 
@@ -326,7 +331,7 @@ const closePreview = () => {
             <div v-for="chat in conversationStoreInstance.conversations" :key="chat.id" class="conversation-item"
                 @click="openChatDialog(chat)">
                 <div class="avatar">
-                    <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(chat.id)?.avatar_base64)"
+                    <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(chat.id)?.avatar)"
                         :alt="conversationStoreInstance.getOtherUser(chat.id)?.username || '用户'">
                 </div>
                 <div class="content">
@@ -354,7 +359,7 @@ const closePreview = () => {
                     <div class="header-back" @click="handleCloseDialog">‹</div>
                     <div class="header-content">
                         <div class="header-avatar">
-                            <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(currentChat.id)?.avatar_base64)"
+                            <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(currentChat.id)?.avatar)"
                                 alt="头像">
                         </div>
                         <h3>{{ conversationStoreInstance.getOtherUser(currentChat.id)?.username || '未知用户' }}</h3>
@@ -373,7 +378,7 @@ const closePreview = () => {
                             <!-- 对方消息 - 头像在左边 -->
                             <template v-if="!isCurrentUserMessage(message)">
                                 <div class="message-avatar">
-                                    <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(currentChat.id)?.avatar_base64)"
+                                    <img :src="getAvatarUrl(conversationStoreInstance.getOtherUser(currentChat.id)?.avatar)"
                                         alt="头像">
                                 </div>
                                 <div class="message-content-wrapper">
@@ -405,7 +410,7 @@ const closePreview = () => {
                                     </div>
                                 </div>
                                 <div class="message-avatar">
-                                    <img :src="getAvatarUrl(userStore.userThing.avatar_base64)" alt="头像">
+                                    <img :src="getAvatarUrl(userStore.userThing.avatar)" alt="头像">
                                 </div>
                             </template>
                         </div>

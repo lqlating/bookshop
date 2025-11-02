@@ -39,10 +39,10 @@ async function getReplyComent() {
             const userRes = await userApi.SearchUserById(comment.user_id);
             if (userRes?.data?.data?.length > 0) {
                 comment.username = userRes.data.data[0].username;
-                comment.avatar_base64 = userRes.data.data[0].avatar_base64 || '';
+                comment.avatar = userRes.data.data[0].avatar || '';
             } else {
                 comment.username = '匿名用户';
-                comment.avatar_base64 = '';
+                comment.avatar = '';
             }
 
             // 获取被回复的评论，并进行空值检查

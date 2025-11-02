@@ -2,7 +2,7 @@
   <div class="main-area">
     <div class="left-area">
       <span class="avatar-area">
-        <img class="avatar-inner" :src="`data:image/png;base64,${subscriptList.avatar_base64}`" alt="用户头像">
+        <img class="avatar-inner" :src="subscriptList.avatar" alt="用户头像">
       </span>
       <span class="use-area">
         <div class="username-inner">{{ subscriptList.username }}</div>
@@ -32,7 +32,7 @@ import subscriptApi from '../../../api/subscriptApi';
 // 定义 props 的类型
 interface SubscriptList {
   id: number;
-  avatar_base64: string;
+  avatar: string;
   username: string;
   interaction: boolean;
 }

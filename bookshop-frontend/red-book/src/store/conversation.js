@@ -19,8 +19,15 @@ export const conversationStore = defineStore('conversation', () => {
 
             // 预处理会话数据，提取对方用户信息和未读消息数
             conversations.forEach(conversation => {
-                // 存储目标用户信息
-                otherUserMap[conversation.id] = conversation.target_user;
+                // 存储目标用户信息，确保使用 avatar 字段
+                const targetUser = conversation.target_user;
+                if (targetUser) {
+                    // 如果后端返回的是 avatar_base64，转换为 avatar
+                    if (targetUser.avatar_base64 && !targetUser.avatar) {
+                        targetUser.avatar = targetUser.avatar_base64;
+                    }
+                }
+                otherUserMap[conversation.id] = targetUser;
 
                 // 计算未读消息数 (从 low_unread 或 high_unread 获取)
                 const isLowUser = userId === conversation.user_low_id;
@@ -67,8 +74,15 @@ export const conversationStore = defineStore('conversation', () => {
             const newConversation = res.data.data;
             conversations.push(newConversation);
 
-            // 存储目标用户信息
-            otherUserMap[newConversation.id] = newConversation.target_user;
+            // 存储目标用户信息，确保使用 avatar 字段
+            const targetUser = newConversation.target_user;
+            if (targetUser) {
+                // 如果后端返回的是 avatar_base64，转换为 avatar
+                if (targetUser.avatar_base64 && !targetUser.avatar) {
+                    targetUser.avatar = targetUser.avatar_base64;
+                }
+            }
+            otherUserMap[newConversation.id] = targetUser;
 
             // 初始化未读消息数为0
             unreadCountMap[newConversation.id] = 0;

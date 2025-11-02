@@ -50,8 +50,8 @@
         </RouterLink>
         <RouterLink v-if="isLogin" to="/Me/Note" active-class="active" class="my-txt">
           <span class="txt-inner">
-            <div v-if="!userThing.avatar_base64" class="avatar-skeleton"></div>
-            <img v-else class="icon me" :src="`data:image/png;base64,${userThing.avatar_base64}`" alt="用户头像"> 我
+            <div v-if="!userThing.avatar" class="avatar-skeleton"></div>
+            <img v-else class="icon me" :src="userThing.avatar" alt="用户头像"> 我
           </span>
         </RouterLink>
         <div v-if="!isLogin" class="login" @click="openLoginDialog">登录</div>
