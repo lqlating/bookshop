@@ -28,23 +28,13 @@ const selected = defineModel("selected", { type: Boolean });
 
 const emit = defineEmits(["remove-item"]);
 
-// 处理图片路径，判断是否为base64格式
+// 处理图片路径
 const getImageSrc = computed(() => {
   if (!props.image) {
     return ''; // 返回空字符串或默认图片
   }
-
-  // 检查是否已经是完整的base64字符串（包含前缀）
-  if (props.image.startsWith('data:image')) {
-    return props.image;
-  }
   
-  // 检查是否是base64编码但没有前缀
-  if (props.image.match(/^[A-Za-z0-9+/=]+$/)) {
-    return `data:image/jpeg;base64,${props.image}`;
-  }
-  
-  // 否则返回原始图片路径
+  // 直接返回图片路径
   return props.image;
 });
 

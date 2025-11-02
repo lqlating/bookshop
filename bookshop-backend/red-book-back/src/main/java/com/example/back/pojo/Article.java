@@ -8,24 +8,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Article {
-    private String img_url;
-    private String txt_type;
-    private Integer author_id;
-    private String content;
-    private String title;
+    private String img_url;          // 对应数据库中的 img_url
+    private String txt_type;         // 对应数据库中的 txt_type
+    private Integer author_id;       // 对应数据库中的 author_id
+    private String content;          // 对应数据库中的 content
+    private String title;            // 对应数据库中的 title
 
-    private Integer article_id;
-    private String publication_time;
-    private String address;
-    private Integer star_count;
-    private Integer like_count;
+    private Integer article_id;      // 对应数据库中的 article_id
+    private String publication_time; // 对应数据库中的 publication_time
+    private String address;          // 对应数据库中的 address
+    private String star_count;       // 对应数据库中的 star_count (注意是String类型)
+    private Integer like_count;      // 对应数据库中的 like_count
 
-    // 不再需要img字段，因为我们现在使用img_url存储图片链接
-    // private byte[] img;
-
+    private String img;              // 对应数据库中的 img 字段
+    
     // 新增字段
-    private Integer is_review;
-    private Integer is_banned;
+    private Integer is_review;       // 对应数据库中的 is_review
+    private Integer is_banned;       // 对应数据库中的 is_banned
     
     /**
      * 创建一个只包含必要字段的精简版Article对象
@@ -44,7 +43,7 @@ public class Article {
         liteArticle.setPublication_time(null);
         liteArticle.setAddress(null);
         liteArticle.setStar_count(null);
-        // liteArticle.setImg(null); 不再需要此字段
+        liteArticle.setImg(null);
         liteArticle.setIs_review(null);
         liteArticle.setIs_banned(null);
         return liteArticle;

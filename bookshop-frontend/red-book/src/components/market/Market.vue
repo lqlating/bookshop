@@ -30,7 +30,7 @@
         <template #default="{ item: book, index }">
           <div class="book-item" @click="openBookDetail(book)">
             <!-- 书籍图片 -->
-            <img v-if="book.book_img" :src="`data:image/jpeg;base64,${book.book_img}`" alt="book cover"
+            <img v-if="book.book_img" :src="book.book_img" alt="book cover"
               class="book-image" loading="lazy" />
             <div v-else class="book-image-placeholder">暂无图片</div>
 
@@ -119,7 +119,7 @@ const openBookDetail = (book) => {
     return;
   }
   selectedBook.value = {
-    image: `data:image/jpeg;base64,${book.book_img}`,
+    image: book.book_img,
     title: book.book_title,
     author: book.book_writer,
     price: book.book_price,

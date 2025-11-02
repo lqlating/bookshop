@@ -5,7 +5,7 @@
         <div class="card" @contextmenu="(event) => $emit('contextmenu', event, item)">
           <div class="image-container" @click="selectArticle(item)">
             <transition name="fade">
-              <LazyImg class="lazy" :url="`data:image/png;base64,${item.img_url}`"
+              <LazyImg class="lazy" :url="item.img_url"
                 @load="handleImageLoad(item.article_id)" :key="item.article_id + '-img'"
                 v-show="imageLoaded[item.article_id]" />
             </transition>
