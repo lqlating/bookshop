@@ -13,7 +13,7 @@
       <div class="user-inner">
         <!-- 头像使用右键点击 -->
         <div class="avatar-container">
-          <img v-if="avatar" :src="avatar || '/images/default_image.jpg'"
+          <img v-if="avatar" :src="avatar"
             alt="User Avatar" @contextmenu.prevent="handleAvatarRightClick" />
 
           <!-- 简单的自定义右键菜单 -->
