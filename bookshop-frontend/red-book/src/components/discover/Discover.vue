@@ -304,7 +304,7 @@ onUnmounted(() => {
         <!-- 文章列表区域，不再使用searchArticle条件判断，而是根据displayArticles长度和激活的标题类型判断显示内容 -->
         <template v-if="(isSearch && searchArticle) || !isSearch">
           <div v-if="displayArticles.length === 0 && !storeLoading" class="no-articles">
-            没有相应文章
+            没有
           </div>
           <Waterfall v-else :list="displayArticles" :key="currentTitleValue" :breakpoints="breakpoints" :gutter="25">
             <template #item="{ item }">
