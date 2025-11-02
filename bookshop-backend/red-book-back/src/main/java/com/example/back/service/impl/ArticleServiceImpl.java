@@ -2,6 +2,7 @@ package com.example.back.service.impl;
 
 import com.example.back.mapper.ArticleMapper;
 import com.example.back.pojo.Article;
+import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import com.example.back.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,15 @@ public class ArticleServiceImpl implements ArticleService {
         long dbTime = System.currentTimeMillis();
         System.out.println("[DEBUG] DB 查询耗时：" + (dbTime - startTime) + " ms");
 
-        // 2️⃣ Base64 转换阶段（如果有图片）
-        for (Article article : articles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-            }
-        }
+        // 2️⃣ 不再需要Base64 转换阶段
+        // for (Article article : articles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //     }
+        // }
         long encodeTime = System.currentTimeMillis();
-        System.out.println("[DEBUG] Base64 转换耗时：" + (encodeTime - dbTime) + " ms");
+        System.out.println("[DEBUG] 处理耗时：" + (encodeTime - dbTime) + " ms");
 
         // 3️⃣ 总耗时
         System.out.println("[DEBUG] 总耗时：" + (encodeTime - startTime) + " ms");
@@ -128,5 +129,33 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void deleteArticle(Integer article_id) {
         articleMapper.deleteArticle(article_id);
+    }
+    
+    @Override
+    public List<ArticleLite> listLite(String type, Integer page, Integer size) {
+        List<ArticleLite> articleLiteList = articleMapper.listLite(type, (page - 1) * size, size);
+        // 不再需要将 BLOB 格式的图片转换为 Base64 格式的字符串
+        // for (ArticleLite articleLite : articleLiteList) {
+        //     if (articleLite.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(articleLite.getImg());
+        //         articleLite.setImg_url(base64Image);
+        //         articleLite.setImg(null); // 清除原始二进制数据
+        //     }
+        // }
+        return articleLiteList;
+    }
+    
+    @Override
+    public List<ArticleLite> listLiteExcludeAuthor(String type, Integer id, Integer page, Integer size) {
+        List<ArticleLite> articleLiteList = articleMapper.listLiteExcludeAuthor(type, id, (page - 1) * size, size);
+        // 不再需要将 BLOB 格式的图片转换为 Base64 格式的字符串
+        // for (ArticleLite articleLite : articleLiteList) {
+        //     if (articleLite.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(articleLite.getImg());
+        //         articleLite.setImg_url(base64Image);
+        //         articleLite.setImg(null); // 清除原始二进制数据
+        //     }
+        // }
+        return articleLiteList;
     }
 }

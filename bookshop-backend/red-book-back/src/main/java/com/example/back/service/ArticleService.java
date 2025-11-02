@@ -1,6 +1,7 @@
 package com.example.back.service;
 
 import com.example.back.pojo.Article;
+import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import org.springframework.stereotype.Service;
 
@@ -54,4 +55,10 @@ public interface ArticleService {
 
     // 根据关键词搜索文章标题或内容，可选排除指定作者的文章
     List<Article> searchByTitleOrContentWithFilter(String keyword, Integer excludeAuthorId);
+    
+    // 新增：获取精简版文章列表
+    List<ArticleLite> listLite(String type, Integer page, Integer size);
+    
+    // 新增：获取精简版文章列表（排除指定作者）
+    List<ArticleLite> listLiteExcludeAuthor(String type, Integer id, Integer page, Integer size);
 }

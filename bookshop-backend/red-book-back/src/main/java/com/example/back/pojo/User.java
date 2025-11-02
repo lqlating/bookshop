@@ -9,8 +9,9 @@ import java.time.LocalDateTime;
 public class User {
     private String username;
     private String password;
-    private byte[] avatar;        // 存储 BLOB 数据
-    private String avatar_base64; // 用于存储转换后的 Base64 字符串
+    // 不再需要avatar字段存储BLOB数据，因为我们现在使用avatar_base64存储图片URL
+    // private byte[] avatar;        // 存储 BLOB 数据
+    private String avatar_base64; // 修改为直接存储图片URL
     private String email;
     private Integer id;
     private String gender;

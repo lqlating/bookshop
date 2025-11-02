@@ -20,14 +20,15 @@ public class UserController {
     @GetMapping("/SearchUserById/{id}")
     public Result search(@PathVariable Integer id) {
         List<User> userList = userService.search(id);
-        for (User user : userList) {
-            if (user.getAvatar() != null) {
-                // 将 BLOB 转换为 Base64
-                String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
-                user.setAvatar_base64(base64Avatar);
-                user.setAvatar(null); // 清空 BLOB 数据，避免传输
-            }
-        }
+        // 不再需要将 avatar 转换为 base64
+        // for (User user : userList) {
+        //     if (user.getAvatar() != null) {
+        //         // 将 BLOB 转换为 Base64
+        //         String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
+        //         user.setAvatar_base64(base64Avatar);
+        //         user.setAvatar(null); // 清空 BLOB 数据，避免传输
+        //     }
+        // }
         return Result.success(userList);
     }
 
@@ -40,11 +41,12 @@ public class UserController {
     @PostMapping("/NewUser")
     public Result add(@RequestBody User user) {
         try {
-            // 处理头像数据
-            if (user.getAvatar_base64() != null && !user.getAvatar_base64().isEmpty()) {
-                user.setAvatar(Base64.getDecoder().decode(user.getAvatar_base64()));
-            }
+            // 不再需要处理Base64头像数据
+            // if (user.getAvatar_base64() != null && !user.getAvatar_base64().isEmpty()) {
+            //     user.setAvatar(Base64.getDecoder().decode(user.getAvatar_base64()));
+            // }
             
+            // user.getAvatar_base64() 现在直接存储图片URL，不需要转换
             userService.add(user);
             return Result.success("User created successfully");
         } catch (IllegalArgumentException e) {
@@ -64,13 +66,14 @@ public class UserController {
     @GetMapping("/SearchUserByUsername")
     public Result searchByUsername(@RequestParam String username) {
         List<User> userList = userService.searchByUsername(username);
-        for (User user : userList) {
-            if (user.getAvatar() != null) {
-                String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
-                user.setAvatar_base64(base64Avatar);
-                user.setAvatar(null);
-            }
-        }
+        // 不再需要将 avatar 转换为 base64
+        // for (User user : userList) {
+        //     if (user.getAvatar() != null) {
+        //         String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
+        //         user.setAvatar_base64(base64Avatar);
+        //         user.setAvatar(null);
+        //     }
+        // }
         return Result.success(userList);
     }
 
@@ -80,11 +83,12 @@ public class UserController {
         String password = loginRequest.getPassword();
         User user = userService.verify(password, account);
         if (user != null) {
-            if (user.getAvatar() != null) {
-                String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
-                user.setAvatar_base64(base64Avatar);
-                user.setAvatar(null);
-            }
+            // 不再需要将 avatar 转换为 base64
+            // if (user.getAvatar() != null) {
+            //     String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
+            //     user.setAvatar_base64(base64Avatar);
+            //     user.setAvatar(null);
+            // }
             return Result.success(user);
         } else {
             return Result.error("密码或者账号错误！请重新输入");
@@ -95,13 +99,14 @@ public class UserController {
     @GetMapping("/getBannedUsers")
     public Result getBannedUsers() {
         List<User> bannedUsers = userService.getBannedUsers();
-        for (User user : bannedUsers) {
-            if (user.getAvatar() != null) {
-                String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
-                user.setAvatar_base64(base64Avatar);
-                user.setAvatar(null);
-            }
-        }
+        // 不再需要将 avatar 转换为 base64
+        // for (User user : bannedUsers) {
+        //     if (user.getAvatar() != null) {
+        //         String base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
+        //         user.setAvatar_base64(base64Avatar);
+        //         user.setAvatar(null);
+        //     }
+        // }
         return !bannedUsers.isEmpty() ? Result.success(bannedUsers) : Result.error("Banned users not found");
     }
 
@@ -133,10 +138,12 @@ public class UserController {
         User user = users.get(0);
         
         if (request.getUsername() != null) user.setUsername(request.getUsername());
-        if (request.getAvatar() != null) {
-            // 将 Base64 转换为 byte[]
-            user.setAvatar(Base64.getDecoder().decode(request.getAvatar()));
-        }
+        // 不再需要将 Base64 转换为 byte[]
+        // if (request.getAvatar() != null) {
+        //     // 将 Base64 转换为 byte[]
+        //     user.setAvatar(Base64.getDecoder().decode(request.getAvatar()));
+        // }
+        // user.getAvatar_base64() 现在直接存储图片URL，不需要转换
         if (request.getEmail() != null) user.setEmail(request.getEmail());
         if (request.getGender() != null) user.setGender(request.getGender());
         if (request.getIntroduction() != null) user.setIntroduction(request.getIntroduction());

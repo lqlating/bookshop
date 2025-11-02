@@ -1,6 +1,7 @@
 package com.example.back.controller;
 
 import com.example.back.pojo.Article;
+import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import com.example.back.pojo.Result;
 import com.example.back.service.ArticleService;
@@ -39,17 +40,9 @@ public class ArticleController {
     public Result list(@PathVariable String type,
                        @RequestParam Integer page,
                        @RequestParam Integer size) {
-        List<Article> articleList = articleService.list(type, page, size);
-        // 对于每篇文章，将 BLOB 格式的图片转换为 Base64 格式的字符串
-        for (Article article : articleList) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);  // 设置 Base64 图片数据
-                article.setImg(null);  // 清空 BLOB 数据，避免返回
-            }
-        }
+        List<ArticleLite> articleList = articleService.listLite(type, page, size);
 
-        return Result.success(articleList);  // 返回带有 Base64 图片的文章列表
+        return Result.success(articleList);  // 返回精简版文章列表
     }
 
     @Operation(summary = "Filter content based on type excluding an author", description = "Returns a list of articles filtered by type, is_review = 1, is_banned = 0, and author_id not equal to the specified id")
@@ -64,17 +57,9 @@ public class ArticleController {
     public Result listExcludeAuthor(@PathVariable String type, @PathVariable Integer id,
                                     @RequestParam Integer page,
                                     @RequestParam Integer size) {
-        List<Article> articleList = articleService.listExcludeAuthor(type, id, page, size);
-        // 对于每篇文章，将 BLOB 格式的图片转换为 Base64 格式的字符串
-        for (Article article : articleList) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);  // 设置 Base64 图片数据
-                article.setImg(null);  // 清空 BLOB 数据，避免返回
-            }
-        }
+        List<ArticleLite> articleList = articleService.listLiteExcludeAuthor(type, id, page, size);
 
-        return Result.success(articleList);  // 返回带有 Base64 图片的文章列表
+        return Result.success(articleList);  // 返回精简版文章列表
     }
 
     @Operation(summary = "Add like to an article", description = "Increases the like count for the specified article")
@@ -105,17 +90,17 @@ public class ArticleController {
     public Result getArticlesByIds(@RequestBody List<Integer> articleIds) {
         List<Article> articles = articleService.getArticlesByIds(articleIds);
 
-        // 将 BLOB 图片数据转换为 Base64 格式
-        for (Article article : articles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);  // 清空 BLOB 数据
-            }
-        }
+        // 不再需要将 BLOB 图片数据转换为 Base64 格式，直接使用 img_url 字段
+        // for (Article article : articles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);  // 清空 BLOB 数据
+        //     }
+        // }
 
         if (!articles.isEmpty()) {
-            return Result.success(articles);  // 返回 Base64 编码后的图片数据
+            return Result.success(articles);  // 直接返回文章数据，其中img_url已经是图片链接
         } else {
             return Result.error("Articles not found");
         }
@@ -128,14 +113,14 @@ public class ArticleController {
                                          @RequestParam Integer size) {
         List<Article> articles = articleService.searchByTitleOrContent(keyword, page, size);
 
-        // 转换图片为 Base64
-        for (Article article : articles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);
-            }
-        }
+        // 不再需要转换图片为 Base64
+        // for (Article article : articles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);
+        //     }
+        // }
 
         return Result.success(articles);
     }
@@ -147,14 +132,14 @@ public class ArticleController {
                                                       @RequestParam Integer size) {
         List<Article> articles = articleService.searchByTitleOrContentExcludeAuthor(keyword, id, page, size);
 
-        // 转换图片为 Base64
-        for (Article article : articles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);
-            }
-        }
+        // 不再需要转换图片为 Base64
+        // for (Article article : articles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);
+        //     }
+        // }
 
         return Result.success(articles);
     }
@@ -165,14 +150,14 @@ public class ArticleController {
                                         @RequestParam Integer size) {
         List<Article> articles = articleService.getArticlesByAuthorId(authorId, page, size);
 
-        // 转换图片为 Base64
-        for (Article article : articles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);
-            }
-        }
+        // 不再需要转换图片为 Base64
+        // for (Article article : articles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);
+        //     }
+        // }
 
         if (!articles.isEmpty()) {
             return Result.success(articles);
@@ -192,12 +177,16 @@ public class ArticleController {
         articleRequest.setIsReview(0); // 设置 isReview 默认值为 0
         articleRequest.setIsBanned(0); // 设置 isBanned 默认值为 0
 
-        // 将 Base64 图片转换为字节数组
-        if (articleRequest.getImg() != null) {
-            byte[] imageBytes = Base64.getDecoder().decode(articleRequest.getImg());
-            articleRequest.setImgData(imageBytes); // 设置为字节数组
-            articleRequest.setImg(null); // 清空 Base64 数据，避免冗余
-        }
+        // 不再需要将 Base64 图片转换为字节数组
+        // if (articleRequest.getImg() != null) {
+        //     byte[] imageBytes = Base64.getDecoder().decode(articleRequest.getImg());
+        //     articleRequest.setImgData(imageBytes); // 设置为字节数组
+        //     articleRequest.setImg(null); // 清空 Base64 数据，避免冗余
+        // }
+        
+        // 直接使用imgUrl字段存储图片链接
+        articleRequest.setImgData(null); // 不再需要存储图片二进制数据
+        
         articleService.save(articleRequest);
         return Result.success("Article added successfully");
     }
@@ -222,17 +211,17 @@ public class ArticleController {
                                         @RequestParam Integer size) {
         List<Article> unreviewedArticles = articleService.getUnreviewedArticles(page, size);
 
-        // 将 BLOB 图片数据转换为 Base64 格式
-        for (Article article : unreviewedArticles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);  // 清空 BLOB 数据
-            }
-        }
+        // 不再需要将 BLOB 图片数据转换为 Base64 格式
+        // for (Article article : unreviewedArticles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);  // 清空 BLOB 数据
+        //     }
+        // }
 
         if (!unreviewedArticles.isEmpty()) {
-            return Result.success(unreviewedArticles);  // 返回 Base64 编码后的图片数据
+            return Result.success(unreviewedArticles);  // 直接返回文章数据
         } else {
             return Result.error("Unreviewed articles not found");
         }
@@ -252,17 +241,17 @@ public class ArticleController {
                                     @RequestParam Integer size) {
         List<Article> bannedArticles = articleService.getBannedArticles(page, size);
 
-        // 将 BLOB 图片数据转换为 Base64 格式
-        for (Article article : bannedArticles) {
-            if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
-                article.setImg(null);  // 清空 BLOB 数据
-            }
-        }
+        // 不再需要将 BLOB 图片数据转换为 Base64 格式
+        // for (Article article : bannedArticles) {
+        //     if (article.getImg() != null) {
+        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+        //         article.setImg_url(base64Image);
+        //         article.setImg(null);  // 清空 BLOB 数据
+        //     }
+        // }
 
         if (!bannedArticles.isEmpty()) {
-            return Result.success(bannedArticles);  // 返回 Base64 编码后的图片数据
+            return Result.success(bannedArticles);  // 直接返回文章数据
         } else {
             return Result.error("Banned articles not found");
         }

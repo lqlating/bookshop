@@ -54,12 +54,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooksByTitle(String title) { // 确保方法签名与接口一致
         List<Book> books = bookMapper.getBooksByTitle(title);
-        for (Book book : books) {
-            if (book.getBook_img() != null) {
-                String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-                book.setBook_img_base64(book_img_base64);
-            }
-        }
+        // 不再需要处理图片的 Base64 转换
+        // for (Book book : books) {
+        //     if (book.getBook_img() != null) {
+        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
+        //         book.setBook_img_base64(book_img_base64);
+        //     }
+        // }
         return books;
     }
 
@@ -67,12 +68,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooksByTitleContaining(String title) {
         List<Book> books = bookMapper.getBooksByTitleContaining(title);
-        for (Book book : books) {
-            if (book.getBook_img() != null) {
-                String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-                book.setBook_img_base64(book_img_base64);
-            }
-        }
+        // 不再需要处理图片的 Base64 转换
+        // for (Book book : books) {
+        //     if (book.getBook_img() != null) {
+        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
+        //         book.setBook_img_base64(book_img_base64);
+        //     }
+        // }
         return books;
     }
 
@@ -85,26 +87,26 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getUnreviewedBooks() {
         List<Book> books = bookMapper.getUnreviewedBooks();
-        // 处理图片的 Base64 转换
-        for (Book book : books) {
-            if (book.getBook_img() != null) {
-                String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-                book.setBook_img_base64(book_img_base64);
-            }
-        }
+        // 不再需要处理图片的 Base64 转换
+        // for (Book book : books) {
+        //     if (book.getBook_img() != null) {
+        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
+        //         book.setBook_img_base64(book_img_base64);
+        //     }
+        // }
         return books;
     }
 
     @Override
     public List<Book> getBannedBooks() {
         List<Book> books = bookMapper.getBannedBooks();
-        // 处理图片的 Base64 转换
-        for (Book book : books) {
-            if (book.getBook_img() != null) {
-                String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-                book.setBook_img_base64(book_img_base64);
-            }
-        }
+        // 不再需要处理图片的 Base64 转换
+        // for (Book book : books) {
+        //     if (book.getBook_img() != null) {
+        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
+        //         book.setBook_img_base64(book_img_base64);
+        //     }
+        // }
         return books;
     }
 

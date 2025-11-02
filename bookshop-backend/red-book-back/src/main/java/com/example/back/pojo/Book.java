@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book {
-    private byte[] book_img;        // 对应数据库中的 book_img
+    private String book_img;        // 修改为直接存储图片URL
     private String book_seller_id;  // 对应数据库中的 book_seller_id
     private Integer book_price;     // 对应数据库中的 book_price
     private String book_writer;     // 对应数据库中的 book_writer
@@ -19,6 +19,6 @@ public class Book {
     private Integer is_review;
     private Integer is_banned;
     private Integer book_id;        // 对应数据库中的 book_id
-    private String book_img_base64; // 新增字段，用于存储 Base64 格式的图片字符串
-
+    // 不再需要book_img_base64字段
+    // private String book_img_base64; // 新增字段，用于存储 Base64 格式的图片字符串
 }

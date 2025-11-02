@@ -1,6 +1,7 @@
 package com.example.back.mapper;
 
 import com.example.back.pojo.Article;
+import com.example.back.pojo.ArticleLite;
 import com.example.back.pojo.ArticleRequest;
 import org.apache.ibatis.annotations.*;
 
@@ -49,4 +50,12 @@ public interface ArticleMapper {
     List<Article> listExcludeAuthor(@Param("type") String type, @Param("id") Integer id, @Param("offset") Integer offset, @Param("size") Integer size);
     
     List<Integer> findArticleStates(int id);
+    
+    // 添加只查询必要字段的方法
+    @Select("SELECT article_id, author_id, title, img, like_count FROM article WHERE txt_type = #{type} AND is_review = 1 AND is_banned = 0 LIMIT #{offset}, #{size}")
+    List<ArticleLite> listLite(@Param("type") String type, @Param("offset") Integer offset, @Param("size") Integer size);
+    
+    // 添加只查询必要字段且排除指定作者的方法
+    @Select("SELECT article_id, author_id, title, img, like_count FROM article WHERE txt_type = #{type} AND author_id != #{id} AND is_review = 1 AND is_banned = 0 LIMIT #{offset}, #{size}")
+    List<ArticleLite> listLiteExcludeAuthor(@Param("type") String type, @Param("id") Integer id, @Param("offset") Integer offset, @Param("size") Integer size);
 }
