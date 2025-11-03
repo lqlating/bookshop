@@ -100,8 +100,16 @@ const showToast = (message) => {
 const openChatDialog = async (conversation) => {
     console.log('Opening chat dialog with conversation:', conversation);
 
-    // 先清除之前的消息，避免闪现
-    messageStoreInstance.clearCurrentConversation();
+    // 如果当前已经打开了另一个聊天，先关闭它
+    if (showChatDialog.value && currentChat.value && currentChat.value.id !== conversation.id) {
+        // 先清除之前的消息，避免闪现
+        messageStoreInstance.clearCurrentConversation();
+        // 等待一帧确保 DOM 更新
+        await new Promise(resolve => requestAnimationFrame(resolve));
+    } else {
+        // 先清除之前的消息，避免闪现
+        messageStoreInstance.clearCurrentConversation();
+    }
     
     // 计算滚动条宽度
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -110,6 +118,9 @@ const openChatDialog = async (conversation) => {
 
     currentChat.value = conversation;
     showChatDialog.value = true;
+
+    // 等待下一帧，确保 DOM 更新完成，消息列表已经被清空且 isLoading 状态已更新
+    await new Promise(resolve => requestAnimationFrame(resolve));
 
     try {
         await messageStoreInstance.fetchMessages(conversation.id);
@@ -358,53 +369,60 @@ const closePreview = () => {
                 </div>
 
                 <div class="chat-messages">
-                    <template v-for="(message, index) in messageStoreInstance.messages" :key="message.id">
-                        <!-- 时间分隔 -->
-                        <div v-if="shouldShowDivider(index)" class="time-divider">
-                            <span>{{ formatDateDivider(message.created_at) }}</span>
-                        </div>
+                    <!-- 加载消息时显示加载指示器，避免显示旧消息 -->
+                    <div v-if="messageStoreInstance.isLoading" class="messages-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    <!-- 消息列表：只有在非加载状态且消息列表不为空时才显示 -->
+                    <template v-else-if="!messageStoreInstance.isLoading && messageStoreInstance.messages.length > 0">
+                        <template v-for="(message, index) in messageStoreInstance.messages" :key="message.id">
+                            <!-- 时间分隔 -->
+                            <div v-if="shouldShowDivider(index)" class="time-divider">
+                                <span>{{ formatDateDivider(message.created_at) }}</span>
+                            </div>
 
-                        <!-- 消息项 -->
-                        <div :class="['message-item', isCurrentUserMessage(message) ? 'self' : 'other']">
-                            <!-- 对方消息 - 头像在左边 -->
-                            <template v-if="!isCurrentUserMessage(message)">
-                                <div class="message-avatar">
-                                    <img :src="conversationStoreInstance.getOtherUser(currentChat.id)?.avatar"
-                                        alt="头像">
-                                </div>
-                                <div class="message-content-wrapper">
-                                    <div class="message-content">
-                                        <template v-if="message.message_type === 'image'">
-                                            <img :src="message.content_image_base64.startsWith('data:') ? message.content_image_base64 : `data:image/jpeg;base64,${message.content_image_base64}`"
-                                                class="message-image" alt="图片消息"
-                                                @click="handleImageClick(message.content_image_base64)">
-                                        </template>
-                                        <template v-else>
-                                            {{ message.content_text || message.content }}
-                                        </template>
+                            <!-- 消息项 -->
+                            <div :class="['message-item', isCurrentUserMessage(message) ? 'self' : 'other']">
+                                <!-- 对方消息 - 头像在左边 -->
+                                <template v-if="!isCurrentUserMessage(message)">
+                                    <div class="message-avatar">
+                                        <img :src="conversationStoreInstance.getOtherUser(currentChat.id)?.avatar"
+                                            alt="头像">
                                     </div>
-                                </div>
-                            </template>
+                                    <div class="message-content-wrapper">
+                                        <div class="message-content">
+                                            <template v-if="message.message_type === 'image'">
+                                                <img :src="message.content_image_base64.startsWith('data:') ? message.content_image_base64 : `data:image/jpeg;base64,${message.content_image_base64}`"
+                                                    class="message-image" alt="图片消息"
+                                                    @click="handleImageClick(message.content_image_base64)">
+                                            </template>
+                                            <template v-else>
+                                                {{ message.content_text || message.content }}
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
 
-                            <!-- 自己消息 - 头像在右边 -->
-                            <template v-if="isCurrentUserMessage(message)">
-                                <div class="message-content-wrapper">
-                                    <div class="message-content">
-                                        <template v-if="message.message_type === 'image'">
-                                            <img :src="message.content_image_base64.startsWith('data:') ? message.content_image_base64 : `data:image/jpeg;base64,${message.content_image_base64}`"
-                                                class="message-image" alt="图片消息"
-                                                @click="handleImageClick(message.content_image_base64)">
-                                        </template>
-                                        <template v-else>
-                                            {{ message.content_text || message.content }}
-                                        </template>
+                                <!-- 自己消息 - 头像在右边 -->
+                                <template v-if="isCurrentUserMessage(message)">
+                                    <div class="message-content-wrapper">
+                                        <div class="message-content">
+                                            <template v-if="message.message_type === 'image'">
+                                                <img :src="message.content_image_base64.startsWith('data:') ? message.content_image_base64 : `data:image/jpeg;base64,${message.content_image_base64}`"
+                                                    class="message-image" alt="图片消息"
+                                                    @click="handleImageClick(message.content_image_base64)">
+                                            </template>
+                                            <template v-else>
+                                                {{ message.content_text || message.content }}
+                                            </template>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="message-avatar">
-                                    <img :src="userStore.userThing.avatar" alt="头像">
-                                </div>
-                            </template>
-                        </div>
+                                    <div class="message-avatar">
+                                        <img :src="userStore.userThing.avatar" alt="头像">
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                     </template>
                 </div>
 
@@ -689,6 +707,15 @@ const closePreview = () => {
         linear-gradient(rgba(200, 200, 200, 0.2) 1px, transparent 1px),
         linear-gradient(90deg, rgba(200, 200, 200, 0.2) 1px, transparent 1px);
     background-size: 20px 20px;
+}
+
+/* 消息加载指示器 */
+.messages-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
 }
 
 /* 时间分隔 */
