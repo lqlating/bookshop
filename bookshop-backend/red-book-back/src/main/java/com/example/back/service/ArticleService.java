@@ -41,7 +41,7 @@ public interface ArticleService {
     // 新增方法：将指定文章的 is_review 和 is_banned 设置为 1
     void setReviewedAndBanned(Integer articleId);
 
-    Object getArticleById(Integer id);
+    Article getArticleById(Integer id);
 
     // 新增方法：将文章标记为已审核
     void setReviewed(Integer articleId);

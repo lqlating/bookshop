@@ -97,20 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void save(ArticleRequest articleRequest) {
-        // 将 ArticleRequest 转换为 Article
-        Article article = new Article();
-        article.setTitle(articleRequest.getTitle());
-        article.setContent(articleRequest.getContent());
-        article.setTxt_type(articleRequest.getTxtType());
-        article.setAuthor_id(articleRequest.getAuthorId());
-        article.setLike_count(articleRequest.getLikeCount());
-        article.setStar_count(articleRequest.getStarCount());
-        article.setPublication_time(articleRequest.getPublicationTime());
-        article.setAddress(articleRequest.getAddress());
-        article.setImg(articleRequest.getImgUrl()); // 使用图片URL路径
-        article.setIs_review(articleRequest.getIsReview());
-        article.setIs_banned(articleRequest.getIsBanned());
-        articleMapper.insert(article);
+        articleMapper.insert(articleRequest);
     }
 
     @Override
@@ -124,7 +111,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Object getArticleById(Integer id) {
+    public Article getArticleById(Integer id) {
         return articleMapper.getArticleById(id);
     }
 

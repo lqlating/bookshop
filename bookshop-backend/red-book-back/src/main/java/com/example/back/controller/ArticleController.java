@@ -285,7 +285,7 @@ public class ArticleController {
             return Result.success(bannedArticles);  // 返回带有图片URL的文章列表
         } else {
             return Result.error("Banned articles not found");
-        
+        }
     }
 
     // 新增接口：将指定文章的 is_review 和 is_banned 设置为 1
