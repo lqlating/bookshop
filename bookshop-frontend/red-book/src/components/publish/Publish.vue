@@ -270,14 +270,15 @@ const submitContent = async () => {
 
       await bookApi.addBook(formData);
     } else {
+      // 文章发布 - 字段名必须匹配后端接口
       formData.append('title', form.value.title);
       formData.append('txtType', form.value.category);
       formData.append('content', form.value.content);
       formData.append('authorId', userStore.userThing.id);
 
-      // 使用FormData上传文件
+      // 使用FormData上传文件 - 后端接口使用 'img' 作为字段名
       if (form.value.bookImageFile) {
-        formData.append('file', form.value.bookImageFile); // 直接上传File对象
+        formData.append('img', form.value.bookImageFile); // 字段名改为 'img' 匹配后端接口
       }
 
       // 打印发布文章的数据
@@ -286,7 +287,7 @@ const submitContent = async () => {
         txtType: form.value.category,
         content: form.value.content,
         authorId: userStore.userThing.id,
-        file: form.value.bookImageFile ? `已上传图片文件: ${form.value.bookImageFile.name}` : null
+        img: form.value.bookImageFile ? `已上传图片文件: ${form.value.bookImageFile.name}` : null
       });
 
       await articleApi.addArticle(formData);
