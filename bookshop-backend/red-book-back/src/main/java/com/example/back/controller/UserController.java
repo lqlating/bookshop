@@ -17,8 +17,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/SearchUser/{id}")
-    public Result search(@PathVariable Integer id) {
+    @GetMapping("/SearchUserById/{id}")
+    public Result searchById(@PathVariable Integer id) {
         List<User> userList = userService.search(id);
         for (User user : userList) {
             if (user.getAvatar() != null) {
