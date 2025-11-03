@@ -1,4 +1,5 @@
 import axiosInstance from "./axiosInstance";
+import axios from "axios";
 
 const articleApi = {
     Filtercontent(value, page, size) {
@@ -44,15 +45,25 @@ const articleApi = {
     },
     // 添加新文章
     addArticle(article) {
-        // 对于FormData，让拦截器删除Content-Type，让浏览器自动设置正确的multipart/form-data（包括boundary）
+        // 对于FormData，确保完全删除Content-Type，让浏览器/XHR自动设置正确的multipart/form-data（包括boundary）
         return axiosInstance.post('/addArticle', article, {
-            transformRequest: [(data, headers) => {
-                // 如果数据是FormData，删除Content-Type让浏览器自动设置
-                if (data instanceof FormData) {
-                    delete headers['Content-Type'];
+            transformRequest: [
+                // 使用axios默认的transformRequest处理普通数据
+                ...(axios.defaults.transformRequest || []),
+                // 自定义处理FormData
+                function (data, headers) {
+                    if (data instanceof FormData) {
+                        // 删除所有可能的Content-Type设置
+                        delete headers['Content-Type'];
+                        delete headers['content-type'];
+                        if (headers.common) {
+                            delete headers.common['Content-Type'];
+                            delete headers.common['content-type'];
+                        }
+                    }
+                    return data;
                 }
-                return data;
-            }]
+            ]
         });
     },
     // 删除文章

@@ -290,6 +290,12 @@ const submitContent = async () => {
         img: form.value.bookImageFile ? `已上传图片文件: ${form.value.bookImageFile.name}` : null
       });
 
+      // 调试：打印FormData内容
+      console.log('FormData内容:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
+      }
+
       await articleApi.addArticle(formData);
     }
 

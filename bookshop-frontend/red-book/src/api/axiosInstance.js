@@ -13,22 +13,41 @@ const axiosInstance = axios.create({
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   config => {
-    // 设置默认的Content-Type为application/json（仅当不是FormData时）
-    if (!(config.data instanceof FormData)) {
+    // 如果数据是FormData，完全删除Content-Type，让浏览器/XHR自动设置（包括boundary）
+    if (config.data instanceof FormData) {
+      // 完全移除所有Content-Type相关的设置
+      // 这是关键：XMLHttpRequest检测到FormData且没有Content-Type时，会自动设置正确的multipart/form-data; boundary=...
+
+      // 删除所有可能位置的Content-Type
+      if (config.headers) {
+        delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
+        // 删除common中的Content-Type
+        if (config.headers.common) {
+          delete config.headers.common['Content-Type'];
+          delete config.headers.common['content-type'];
+        }
+        // 删除post中的Content-Type（如果有）
+        if (config.headers.post) {
+          delete config.headers.post['Content-Type'];
+          delete config.headers.post['content-type'];
+        }
+      }
+
+      // 确保headers对象存在
+      config.headers = config.headers || {};
+
+      // 重要：完全不设置Content-Type，让XMLHttpRequest自动检测FormData
+      // XMLHttpRequest会自动设置：Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...
+
+      // 添加调试日志
+      console.log('发送FormData，Content-Type已删除，让浏览器自动设置');
+    } else {
+      // 如果不是FormData，设置默认的Content-Type为application/json
+      config.headers = config.headers || {};
       if (!config.headers['Content-Type']) {
         config.headers['Content-Type'] = 'application/json';
       }
-    } else {
-      // 如果是FormData，完全删除Content-Type，让浏览器自动设置（包括boundary）
-      delete config.headers['Content-Type'];
-      delete config.headers['content-type'];
-      if (config.headers.common) {
-        delete config.headers.common['Content-Type'];
-        delete config.headers.common['content-type'];
-      }
-      // 确保headers对象存在
-      config.headers = config.headers || {};
-      // 浏览器/axios会自动检测FormData并添加正确的Content-Type: multipart/form-data; boundary=...
     }
     // 可以在这里添加 token
     return config;
