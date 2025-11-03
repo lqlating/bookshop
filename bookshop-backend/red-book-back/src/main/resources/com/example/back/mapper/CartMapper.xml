@@ -5,7 +5,7 @@
 
 <mapper namespace="com.example.back.mapper.CartMapper">
 
-    <!-- 定义结果映射，保持下划线格式字段 -->
+    <!-- 定义结果映射，保留下划线格式字段 -->
     <resultMap id="CartResultMap" type="com.example.back.pojo.Cart">
         <id property="cart_id" column="cart_id"/>
         <result property="owner_id" column="owner_id"/>
@@ -17,7 +17,6 @@
             <result property="book_price" column="book_price"/>
             <result property="book_writer" column="book_writer"/>
             <result property="book_type" column="book_type"/>
-            <result property="book_img_base64" column="book_img_base64"/>
         </association>
     </resultMap>
 
@@ -25,8 +24,7 @@
     <select id="listCarts" resultMap="CartResultMap">
         SELECT cart.cart_id, cart.book_id, cart.owner_id,
         book.book_title, book.book_img, book.book_seller_id,
-        book.book_price, book.book_writer, book.book_type,
-        CASE WHEN book.book_img IS NOT NULL THEN TO_BASE64(book.book_img) ELSE NULL END AS book_img_base64
+        book.book_price, book.book_writer, book.book_type
         FROM cart
         JOIN book ON cart.book_id = book.book_id
     </select>
@@ -35,8 +33,7 @@
     <select id="getCartById" parameterType="Integer" resultMap="CartResultMap">
         SELECT cart.cart_id, cart.book_id, cart.owner_id,
         book.book_title, book.book_img, book.book_seller_id,
-        book.book_price, book.book_writer, book.book_type,
-        CASE WHEN book.book_img IS NOT NULL THEN TO_BASE64(book.book_img) ELSE NULL END AS book_img_base64
+        book.book_price, book.book_writer, book.book_type
         FROM cart
         JOIN book ON cart.book_id = book.book_id
         WHERE cart.cart_id = #{cart_id}
@@ -46,8 +43,7 @@
     <select id="getCartsByOwnerId" parameterType="Integer" resultMap="CartResultMap">
         SELECT cart.cart_id, cart.book_id, cart.owner_id,
         book.book_title, book.book_img, book.book_seller_id,
-        book.book_price, book.book_writer, book.book_type,
-        CASE WHEN book.book_img IS NOT NULL THEN TO_BASE64(book.book_img) ELSE NULL END AS book_img_base64
+        book.book_price, book.book_writer, book.book_type
         FROM cart
         JOIN book ON cart.book_id = book.book_id
         WHERE cart.owner_id = #{owner_id}

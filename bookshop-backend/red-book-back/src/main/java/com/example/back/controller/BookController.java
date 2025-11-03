@@ -11,9 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/book")
@@ -28,41 +32,56 @@ public class BookController {
     @GetMapping("/list")
     public Result listBooks() {
         List<Book> books = bookService.listBooks();
-        // 不再需要将 book_img 转换为 base64
-        // for (Book book : books) {
-        //     if (book.getBook_img() != null) {
-        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-        //         book.setBook_img_base64(book_img_base64);
-        //     }
-        // }
+        // 直接传输原始数据，不进行Base64转换
         return Result.success(books);
     }
 
-    @GetMapping("/{book_id}")
-    public Result getBookById(@PathVariable Integer book_id) {
-        Book book = (Book) bookService.getBookById(book_id);
-        if (book == null) {
+    @GetMapping("/{id}")
+    public Result getBookById(@PathVariable Integer id) {
+        Book book = bookService.getBookById(id);
+        if (book != null) {
+            // 直接传输原始数据，不进行Base64转换
+            return Result.success(book);
+        } else {
             return Result.error("Book not found");
         }
-        // 不再需要将 book_img 转换为 base64
-        // if (book.getBook_img() != null) {
-        //     String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-        //     book.setBook_img_base64(book_img_base64);
-        // }
-        return Result.success(book);
     }
 
     @PostMapping("/addBook")
-    public Result addBook(@RequestBody Book book) {
-        // 不再需要将 Base64 图片转换为字节数组
-        // if (book.getBook_img_base64() != null) {
-        //     byte[] imageBytes = Base64.getDecoder().decode(book.getBook_img_base64());
-        //     book.setBook_img(imageBytes); // 设置为字节数组
-        //     book.setBook_img_base64(null); // 清空 Base64 数据，避免冗余
-        // }
-        // book.getBook_img() 现在直接存储图片URL，不需要转换
-        bookService.addBook(book);
-        return Result.success("Book added successfully");
+    public Result addBook(@RequestParam("book_title") String bookTitle,
+                          @RequestParam("book_writer") String bookWriter,
+                          @RequestParam("book_seller_id") String bookSellerId,
+                          @RequestParam("book_price") Integer bookPrice,
+                          @RequestParam("book_type") String bookType,
+                          @RequestParam("book_descripe") String bookDescripe,
+                          @RequestParam(value = "file", required = false) MultipartFile bookImg) {
+        try {
+            String imgUrl = null;
+            if (bookImg != null && !bookImg.isEmpty()) {
+                // 保存图片到服务器指定目录
+                String filename = "book_" + UUID.randomUUID() + "_" + System.currentTimeMillis() + ".jpg";
+                String uploadDir = "/var/www/img/book/";
+                Path path = Paths.get(uploadDir + filename);
+                Files.write(path, bookImg.getBytes());
+                imgUrl = "/img/book/" + filename;
+            }
+
+            // 创建 Book 对象并设置属性
+            Book book = new Book();
+            book.setBook_title(bookTitle);
+            book.setBook_writer(bookWriter);
+            book.setBook_seller_id(bookSellerId);
+            book.setBook_price(bookPrice);
+            book.setBook_type(bookType);
+            book.setBook_descripe(bookDescripe);
+            book.setBook_img(imgUrl); // 设置图片URL路径
+
+            bookService.addBook(book);
+            return Result.success("Book added successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.error("上传失败：" + e.getMessage());
+        }
     }
 
     @PutMapping("/update")
@@ -77,16 +96,10 @@ public class BookController {
         return Result.success();
     }
 
-    @GetMapping("/type/{book_type}")
-    public Result getBooksByType(@PathVariable String book_type) {
-        List<Book> books = bookService.getBooksByType(book_type);
-        // 不再需要将 book_img 转换为 base64
-        // for (Book book : books) {
-        //     if (book.getBook_img() != null) {
-        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-        //         book.setBook_img_base64(book_img_base64);
-        //     }
-        // }
+    @GetMapping("/type/{type}")
+    public Result getBooksByType(@PathVariable String type) {
+        List<Book> books = bookService.getBooksByType(type);
+        // 直接传输原始数据，不进行Base64转换
         return Result.success(books);
     }
 
@@ -181,14 +194,7 @@ public class BookController {
     public Result getBooksBySellerId(@PathVariable String sellerId) {
         List<Book> books = bookService.getBooksBySellerId(sellerId);
         
-        // 不再需要将图片转换为Base64格式
-        // for (Book book : books) {
-        //     if (book.getBook_img() != null) {
-        //         String book_img_base64 = Base64.getEncoder().encodeToString(book.getBook_img());
-        //         book.setBook_img_base64(book_img_base64);
-        //     }
-        // }
-        
+        // 直接传输原始数据，不进行Base64转换
         if (books.isEmpty()) {
             return Result.error("No books found for this seller");
         }

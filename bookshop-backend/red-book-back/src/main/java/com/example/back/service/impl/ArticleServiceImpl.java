@@ -24,32 +24,20 @@ public class ArticleServiceImpl implements ArticleService {
         long dbTime = System.currentTimeMillis();
         System.out.println("[DEBUG] DB 查询耗时：" + (dbTime - startTime) + " ms");
 
-        // 2️⃣ 不再需要Base64 转换阶段
-        // for (Article article : articles) {
-        //     if (article.getImg() != null) {
-        //         String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-        //         article.setImg_url(base64Image);
-        //     }
-        // }
+        // 2️⃣ Base64 转换阶段（如果有图片）
+        for (Article article : articles) {
+            if (article.getImg() != null) {
+                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
+                article.setImg_url(base64Image);
+            }
+        }
         long encodeTime = System.currentTimeMillis();
-        System.out.println("[DEBUG] 处理耗时：" + (encodeTime - dbTime) + " ms");
+        System.out.println("[DEBUG] Base64 转换耗时：" + (encodeTime - dbTime) + " ms");
 
         // 3️⃣ 总耗时
         System.out.println("[DEBUG] 总耗时：" + (encodeTime - startTime) + " ms");
 
         return articles;
-    }
-
-    // 新增：获取完整字段的文章列表
-    @Override
-    public List<Article> listFull(String type, Integer page, Integer size) {
-        return articleMapper.listFull(type, (page - 1) * size, size);
-    }
-
-    // 新增：获取完整字段且排除指定作者的文章列表
-    @Override
-    public List<Article> listFullExcludeAuthor(String type, Integer id, Integer page, Integer size) {
-        return articleMapper.listFullExcludeAuthor(type, id, (page - 1) * size, size);
     }
 
     @Override
@@ -87,7 +75,6 @@ public class ArticleServiceImpl implements ArticleService {
         return articleMapper.searchByTitleOrContent(keyword, (page - 1) * size, size);
     }
 
-    // 修改：搜索文章且排除指定作者（完整字段）
     @Override
     public List<Article> searchByTitleOrContentExcludeAuthor(String keyword, Integer id, Integer page, Integer size) {
         return articleMapper.searchByTitleOrContentExcludeAuthor(keyword, id, (page - 1) * size, size);
@@ -109,7 +96,20 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void save(ArticleRequest article) {
+    public void save(ArticleRequest articleRequest) {
+        // 将 ArticleRequest 转换为 Article
+        Article article = new Article();
+        article.setTitle(articleRequest.getTitle());
+        article.setContent(articleRequest.getContent());
+        article.setTxt_type(articleRequest.getTxtType());
+        article.setAuthor_id(articleRequest.getAuthorId());
+        article.setLike_count(articleRequest.getLikeCount());
+        article.setStar_count(articleRequest.getStarCount());
+        article.setPublication_time(articleRequest.getPublicationTime());
+        article.setAddress(articleRequest.getAddress());
+        article.setImg(articleRequest.getImgUrl()); // 使用图片URL路径
+        article.setIs_review(articleRequest.getIsReview());
+        article.setIs_banned(articleRequest.getIsBanned());
         articleMapper.insert(article);
     }
 

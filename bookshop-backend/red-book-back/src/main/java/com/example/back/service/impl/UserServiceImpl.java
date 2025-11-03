@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
         // 设置新用户的默认值
         if (user.getFans() == null) {
-            user.setFans(0);
+            user.setFans("0");
         }
         if (user.getIsBanned() == null) {
             user.setIsBanned(0);

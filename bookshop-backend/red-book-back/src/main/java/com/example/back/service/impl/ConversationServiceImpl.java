@@ -40,6 +40,13 @@ public class ConversationServiceImpl implements ConversationService {
             }
             User target_user = userMapper.getUserById(target_user_id.intValue());
             
+            // 转换头像为Base64
+            if (target_user != null && target_user.getAvatar() != null) {
+                String avatar_base64 = Base64.getEncoder().encodeToString(target_user.getAvatar());
+                target_user.setAvatar_base64(avatar_base64);
+                target_user.setAvatar(null); // 清空原始字节数组，避免传输
+            }
+            
             conversation.setTarget_user(target_user);
             
             // 设置未读消息数量
