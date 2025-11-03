@@ -28,14 +28,19 @@ const selected = defineModel("selected", { type: Boolean });
 
 const emit = defineEmits(["remove-item"]);
 
-// 处理图片路径
+// 处理图片URL，像商场页面和文章页面一样直接使用URL路径
 const getImageSrc = computed(() => {
   if (!props.image) {
     return ''; // 返回空字符串或默认图片
   }
   
-  // 直接返回图片路径
-  return props.image;
+  // 如果已经是完整URL，直接返回
+  if (props.image.startsWith('http://') || props.image.startsWith('https://') || props.image.startsWith('/')) {
+    return props.image;
+  }
+  
+  // 如果是相对路径，拼接 /api（根据后端配置）
+  return `/api/${props.image}`;
 });
 
 // 删除当前商品

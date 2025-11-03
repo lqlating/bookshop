@@ -73,25 +73,19 @@ const { fetchCartsByOwnerId, deleteCart, deleteCarts } = store;
 // 从 userStore 中获取用户 ID
 const currentUserId = userStore.userThing.id;
 
-// 处理图片路径，判断是否为base64格式
+// 处理图片URL，像商场页面和文章页面一样直接使用URL路径
 const getImageSrc = (image) => {
   if (!image) {
-    return 'https://via.placeholder.com/50'; // 返回默认图片
+    return ''; // 返回空字符串或默认图片
   }
-
-  // 检查是否已经是完整的base64字符串（包含前缀）
-  if (image.startsWith('data:image')) {
+  
+  // 如果已经是完整URL，直接返回
+  if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/')) {
     return image;
   }
-
-  // 检查是否是base64编码但没有前缀
-  // 更严格的base64检测正则表达式
-  if (/^[A-Za-z0-9+/=]+$/.test(image) && image.length > 20) {
-    return `data:image/jpeg;base64,${image}`;
-  }
-
-  // 否则返回原始图片路径
-  return image;
+  
+  // 如果是相对路径，拼接 /api（根据后端配置）
+  return `/api/${image}`;
 };
 
 // 初始化时添加selected属性
