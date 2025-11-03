@@ -46,16 +46,61 @@ export const useLikeStore = defineStore('like', () => {
     }
   };
 
-  // 根据作者ID获取文章列表
-  const fetchArticlesByAuthorId = async (authorId) => {
+  // 分页状态
+  let currentPage = ref(1);
+  let hasMoreData = ref(true);
+  let isLoadingArticles = ref(false);
+  const pageSize = 20;
+
+  // 根据作者ID获取文章列表（支持分页）
+  const fetchArticlesByAuthorId = async (authorId, page = 1, size = 20) => {
     try {
-      const response = await articleApi.getArticlesByAuthorId(authorId);
+      isLoadingArticles.value = true;
+      const response = await articleApi.getArticlesByAuthorId(authorId, page, size);
       if (response.data.code === 1) {
-        articlesByAuthor.value = response.data.data; // 将返回的文章数据存储到 articlesByAuthor 中
+        const newArticles = response.data.data || [];
+
+        // 如果是第一页，清空列表
+        if (page === 1) {
+          articlesByAuthor.value = newArticles;
+          currentPage.value = 1;
+          hasMoreData.value = true;
+        } else {
+          // 否则追加到列表
+          articlesByAuthor.value.push(...newArticles);
+        }
+
+        // 如果返回的数据少于请求的数量，说明没有更多数据了
+        if (newArticles.length < size) {
+          hasMoreData.value = false;
+        }
+
+        currentPage.value = page;
+        return newArticles;
       }
+      return [];
     } catch (error) {
       console.error('获取作者文章失败:', error);
+      return [];
+    } finally {
+      isLoadingArticles.value = false;
     }
+  };
+
+  // 加载更多文章（根据作者ID）
+  const loadMoreArticlesByAuthorId = async (authorId) => {
+    if (isLoadingArticles.value || !hasMoreData.value) {
+      return { success: false, hasMore: hasMoreData.value };
+    }
+
+    const nextPage = currentPage.value + 1;
+    const newArticles = await fetchArticlesByAuthorId(authorId, nextPage, pageSize);
+
+    return {
+      success: true,
+      hasMore: hasMoreData.value,
+      articles: newArticles
+    };
   };
 
   // 添加点赞文章
@@ -135,10 +180,14 @@ export const useLikeStore = defineStore('like', () => {
     starredArticleIds,
     likedCommentIds,
     articlesByAuthor, // 新增的状态存储
+    currentPage,
+    hasMoreData,
+    isLoadingArticles,
     fetchLikedArticleIds,
     fetchStarredArticleIds,
     fetchLikedCommentIds, // 获取点赞评论的函数
     fetchArticlesByAuthorId, // 获取作者文章的函数
+    loadMoreArticlesByAuthorId, // 加载更多文章的函数
     addLike,
     removeLike,
     addStar,

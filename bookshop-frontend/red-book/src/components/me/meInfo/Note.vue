@@ -1,7 +1,7 @@
 <template>
-  <div class="user-notes-container">
+  <div class="user-notes-container" ref="containerRef" @scroll="handleScroll">
     <!-- 未发布文章时的空状态 -->
-    <div v-if="articlesByAuthor.length === 0" class="empty-state">
+    <div v-if="articlesByAuthor.length === 0 && !isLoadingArticles" class="empty-state">
       <div class="empty-avatar">
         <img src="../../../assets/img/head.png" alt="用户头像">
       </div>
@@ -11,6 +11,17 @@
     <!-- 已发布文章列表 -->
     <div v-else class="notes-list-container">
       <ArticleDisplay ref="articleDisplayRef" :articleLists="articlesByAuthor" @contextmenu="handleContextMenu" />
+      
+      <!-- 加载指示器 -->
+      <div v-if="isLoadingArticles" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>加载中...</p>
+      </div>
+      
+      <!-- 没有更多数据提示 -->
+      <div v-if="!hasMoreData && articlesByAuthor.length > 0" class="no-more-data">
+        没有更多文章了
+      </div>
 
       <!-- 自定义右键菜单 -->
       <div v-show="showContextMenu" class="custom-context-menu" :style="contextMenuStyle">
@@ -51,8 +62,11 @@ const userStore = userInfoStore();
 const userId = userStore.userThing.id;
 
 const likeStore = useLikeStore();
-const { articlesByAuthor } = storeToRefs(likeStore);
-const { fetchArticlesByAuthorId } = likeStore;
+const { articlesByAuthor, hasMoreData, isLoadingArticles } = storeToRefs(likeStore);
+const { fetchArticlesByAuthorId, loadMoreArticlesByAuthorId } = likeStore;
+
+// 容器引用
+const containerRef = ref(null);
 
 // 右键菜单相关状态
 const showContextMenu = ref(false);
@@ -130,10 +144,41 @@ const handleClickOutside = () => {
   showContextMenu.value = false;
 };
 
+// 滚动处理，实现触底加载更多
+const handleScroll = () => {
+  if (!containerRef.value || isLoadingArticles.value || !hasMoreData.value) return;
+  
+  const scrollTop = containerRef.value.scrollTop;
+  const scrollHeight = containerRef.value.scrollHeight;
+  const clientHeight = containerRef.value.clientHeight;
+  
+  // 距离底部200px时开始加载
+  const threshold = scrollHeight - 200;
+  const scrollBottom = scrollTop + clientHeight;
+  
+  if (scrollBottom >= threshold) {
+    loadMore();
+  }
+};
+
+// 加载更多文章
+const loadMore = async () => {
+  try {
+    const result = await loadMoreArticlesByAuthorId(userId);
+    if (result.success && result.articles) {
+      console.log(`加载了 ${result.articles.length} 篇新文章`);
+    }
+  } catch (error) {
+    console.error("加载更多文章时出错:", error);
+    showToast('加载更多文章失败', 'error');
+  }
+};
+
 onMounted(async () => {
+  // 如果列表为空，加载第一页数据
   if (articlesByAuthor.value.length === 0) {
     try {
-      await fetchArticlesByAuthorId(userId);
+      await fetchArticlesByAuthorId(userId, 1, 20);
     } catch (error) {
       console.error("获取作者文章时出错:", error);
       showToast('获取文章列表失败', 'error');
@@ -154,6 +199,8 @@ onUnmounted(() => {
   min-height: 60vh;
   padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px); /* 根据实际布局调整 */
 }
 
 /* 空状态样式 */
@@ -314,6 +361,45 @@ onUnmounted(() => {
 
 .confirm-btn:hover {
   background-color: #e02745;
+}
+
+/* 加载指示器 */
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff2e4d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-indicator p {
+  margin: 0;
+  font-size: 14px;
+  color: #999;
+}
+
+/* 没有更多数据提示 */
+.no-more-data {
+  text-align: center;
+  padding: 30px 20px;
+  color: #999;
+  font-size: 14px;
 }
 </style>
 
