@@ -93,7 +93,7 @@ const form = ref({
   author: '',
   category: '',
   price: '',
-  bookImage: null,
+  bookImageFile: null, // 改为存储File对象而不是base64
   bookImagePreview: '',
   content: '',
 });
@@ -123,11 +123,26 @@ watch(isBookPublish, () => {
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      ElMessage.error('请选择图片文件');
+      return;
+    }
+    
+    // 验证文件大小（例如限制为10MB）
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      ElMessage.error('图片大小不能超过10MB');
+      return;
+    }
+    
+    // 保存File对象
+    form.value.bookImageFile = file;
+    
+    // 创建预览URL（用于显示预览）
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64Image = e.target.result.split(',')[1]; // 获取 Base64 编码部分
       form.value.bookImagePreview = e.target.result;
-      form.value.bookImage = base64Image; // 存储 Base64 图片
     };
     reader.readAsDataURL(file);
   }
@@ -137,11 +152,26 @@ const handleImageUpload = (event) => {
 const handleFileDrop = (event) => {
   const file = event.dataTransfer.files[0];
   if (file) {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      ElMessage.error('请选择图片文件');
+      return;
+    }
+    
+    // 验证文件大小（例如限制为10MB）
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      ElMessage.error('图片大小不能超过10MB');
+      return;
+    }
+    
+    // 保存File对象
+    form.value.bookImageFile = file;
+    
+    // 创建预览URL（用于显示预览）
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64Image = e.target.result.split(',')[1]; // 获取 Base64 编码部分
       form.value.bookImagePreview = e.target.result;
-      form.value.bookImage = base64Image; // 存储 Base64 图片
     };
     reader.readAsDataURL(file);
   }
@@ -154,8 +184,12 @@ const triggerFileInput = () => {
 
 // 清除已上传的书籍封面图片
 const clearImage = () => {
-  form.value.bookImage = null;
+  form.value.bookImageFile = null;
   form.value.bookImagePreview = '';
+  // 重置文件输入
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
 };
 
 // 重置表单
@@ -164,16 +198,20 @@ const resetForm = () => {
   form.value.author = '';
   form.value.category = '';
   form.value.price = '';
-  form.value.bookImage = null;
+  form.value.bookImageFile = null;
   form.value.bookImagePreview = '';
   form.value.content = '';
+  // 重置文件输入
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
 };
 
 // 提交书籍或文章
 const submitContent = async () => {
-  if (!form.value.title || !form.value.content || !form.value.category || !form.value.bookImage) {
+  if (!form.value.title || !form.value.content || !form.value.category || !form.value.bookImageFile) {
     ElMessage({
-      message: '请填写所有必填项',
+      message: '请填写所有必填项（包括上传图片）',
       type: 'warning',
     });
     return;
@@ -211,11 +249,12 @@ const submitContent = async () => {
       formData.append('book_writer', form.value.author);
       formData.append('book_type', form.value.category);
       formData.append('book_price', form.value.price);
-      formData.append('book_descripe', form.value.content); // 修改为 book_descripe
+      formData.append('book_descripe', form.value.content);
       formData.append('book_seller_id', userStore.userThing.id);
 
-      if (form.value.bookImage) {
-        formData.append('book_img_base64', form.value.bookImage); // 将 Base64 图片数据作为字符串发送
+      // 使用FormData上传文件
+      if (form.value.bookImageFile) {
+        formData.append('file', form.value.bookImageFile); // 直接上传File对象
       }
 
       // 打印发布书籍的数据
@@ -226,7 +265,7 @@ const submitContent = async () => {
         book_price: form.value.price,
         book_descripe: form.value.content,
         book_seller_id: userStore.userThing.id,
-        book_img_base64: '已上传图片(Base64)'
+        file: form.value.bookImageFile ? `已上传图片文件: ${form.value.bookImageFile.name}` : null
       });
 
       await bookApi.addBook(formData);
@@ -236,8 +275,9 @@ const submitContent = async () => {
       formData.append('content', form.value.content);
       formData.append('authorId', userStore.userThing.id);
 
-      if (form.value.bookImage) {
-        formData.append('img', form.value.bookImage); // 将 Base64 图片数据作为字符串发送
+      // 使用FormData上传文件
+      if (form.value.bookImageFile) {
+        formData.append('file', form.value.bookImageFile); // 直接上传File对象
       }
 
       // 打印发布文章的数据
@@ -246,7 +286,7 @@ const submitContent = async () => {
         txtType: form.value.category,
         content: form.value.content,
         authorId: userStore.userThing.id,
-        img: form.value.bookImage ? '已上传图片(Base64)' : null
+        file: form.value.bookImageFile ? `已上传图片文件: ${form.value.bookImageFile.name}` : null
       });
 
       await articleApi.addArticle(formData);

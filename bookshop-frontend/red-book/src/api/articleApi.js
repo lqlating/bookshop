@@ -44,6 +44,7 @@ const articleApi = {
     },
     // 添加新文章
     addArticle(article) {
+        // FormData的Content-Type（包括boundary）由浏览器自动设置
         return axiosInstance.post('/addArticle', article);
     },
     // 删除文章

@@ -15,6 +15,7 @@ const bookApi = {
 
     // 添加新书籍
     addBook(book) {
+        // FormData的Content-Type（包括boundary）由浏览器自动设置
         return axiosInstance.post('/book/addBook', book);
     },
 
