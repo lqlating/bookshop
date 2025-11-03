@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArticleRequest {
+    // 已废弃的字段
     @Deprecated
     private String img;
     @Deprecated

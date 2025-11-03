@@ -24,15 +24,15 @@ public class ArticleServiceImpl implements ArticleService {
         long dbTime = System.currentTimeMillis();
         System.out.println("[DEBUG] DB 查询耗时：" + (dbTime - startTime) + " ms");
 
-        // 2️⃣ Base64 转换阶段（如果有图片）
+        // 2️⃣ 图片URL处理阶段（如果有图片）
         for (Article article : articles) {
             if (article.getImg() != null) {
-                String base64Image = Base64.getEncoder().encodeToString(article.getImg());
-                article.setImg_url(base64Image);
+                // img字段已经是URL，直接设置到img_url字段
+                article.setImg_url(article.getImg());
             }
         }
         long encodeTime = System.currentTimeMillis();
-        System.out.println("[DEBUG] Base64 转换耗时：" + (encodeTime - dbTime) + " ms");
+        System.out.println("[DEBUG] 图片URL处理耗时：" + (encodeTime - dbTime) + " ms");
 
         // 3️⃣ 总耗时
         System.out.println("[DEBUG] 总耗时：" + (encodeTime - startTime) + " ms");
