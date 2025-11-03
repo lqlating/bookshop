@@ -38,8 +38,8 @@
     <el-dialog v-model="dialogVisible" title="用户详情" width="500px">
       <div v-if="selectedUser" class="user-detail">
         <div class="user-header">
-          <div class="user-avatar" v-if="selectedUser.avatar_base64">
-            <img :src="`data:image/jpeg;base64,${selectedUser.avatar_base64}`" alt="用户头像">
+          <div class="user-avatar" v-if="selectedUserAvatarUrl && selectedUserAvatarUrl !== '/images/default_image.jpg'">
+            <img :src="selectedUserAvatarUrl" alt="用户头像">
           </div>
           <div class="user-avatar avatar-placeholder" v-else></div>
           <div class="user-info">
@@ -98,12 +98,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import DataList from '../components/DataList.vue'
 import { ElMessage } from 'element-plus'
 import { useReportsStore } from '@/store/reports'
 import userApi from '@/api/modules/userApi'
 import reportApi from '@/api/modules/reportApi'
+import { getImageUrl } from '@/utils/image'
 
 // 定义类型
 interface ReportItem {
@@ -122,6 +123,12 @@ const reportsStore = useReportsStore()
 // 用户详情弹窗
 const dialogVisible = ref(false)
 const selectedUser = ref<any>(null)
+
+// 计算选中用户的头像 URL
+const selectedUserAvatarUrl = computed(() => {
+  if (!selectedUser.value?.avatar) return '/images/default_image.jpg'
+  return getImageUrl(selectedUser.value.avatar)
+})
 
 // 封禁弹窗
 const banDialogVisible = ref(false)

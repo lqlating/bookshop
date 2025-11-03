@@ -198,8 +198,9 @@ const fetchData = async (preservedCache?: Record<number, string>) => {
       });
     }
 
-    await getPendingArticles()
-    await getBannedArticles()
+    // 使用分页参数获取数据，每次获取10条
+    await getPendingArticles({ page: 1, size: 10 })
+    await getBannedArticles({ page: 1, size: 10 })
     console.log('待审核文章:', articleList.value)
     console.log('已封禁文章:', bannedArticles.value)
 

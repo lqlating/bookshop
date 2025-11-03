@@ -1,7 +1,7 @@
 <template>
     <div class="article-inner" v-if="localArticleInner">
         <span class="article_img_inner" @click="openOverlay">
-            <img :src="img_url ? `data:image/png;base64,${img_url}` : '/images/default_image.jpg'" alt="Article Image"
+            <img :src="imageUrl" alt="Article Image"
                 :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
         </span>
         <span>
@@ -18,7 +18,7 @@
             <div v-if="isLoading" class="author-loading">加载作者信息中...</div>
             <div v-else-if="userName" class="user-inner">
                 <div class="avatar-container">
-                    <img v-if="avatar" :src="`data:image/png;base64,${avatar}`" alt="User Avatar" />
+                    <img v-if="avatarUrl && avatarUrl !== '/images/default_image.jpg'" :src="avatarUrl" alt="User Avatar" />
                     <div v-else class="avatar-skeleton"></div>
                 </div>
                 <span class="username-info">{{ userName }}</span>
@@ -28,7 +28,7 @@
 
         <!-- 毛玻璃遮罩层 -->
         <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
-            <img :src="img_url ? `data:image/png;base64,${img_url}` : '/images/default_image.jpg'" alt="Overlay Image"
+            <img :src="imageUrl" alt="Overlay Image"
                 class="overlay-image" />
         </div>
 
@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import userApi from "../../api/modules/userApi";
+import { getImageUrl } from '../../utils/image'
 
 const props = defineProps({
     article: {
@@ -61,7 +62,7 @@ const emit = defineEmits(['close']);
 // 从 props 解构数据
 const {
     title: articleTitle,
-    img_url,
+    img,  // 使用 img 字段而不是 img_url
     author_id,
     content,
     publication_time,
@@ -70,7 +71,7 @@ const {
 
 interface UserInfo {
     username?: string;
-    avatar_base64?: string;
+    avatar?: string;  // 使用 avatar 字段而不是 avatar_base64
     [key: string]: any;
 }
 
@@ -81,11 +82,15 @@ const avatar = ref("");
 const isOverlayOpen = ref(false);
 const isLoading = ref(true);
 
+// 计算图片 URL
+const imageUrl = computed(() => getImageUrl(img))
+const avatarUrl = computed(() => getImageUrl(avatar.value))
+
 // 计算属性
 const isTallImage = computed(() => {
-    if (img_url) {
+    if (imageUrl.value) {
         const img = new Image();
-        img.src = `data:image/png;base64,${img_url}`;
+        img.src = imageUrl.value;
         return img.height > img.width;
     }
     return false;
@@ -104,7 +109,7 @@ async function loadArticleData() {
         if (result.data?.data?.[0]) {
             userInfo.value = result.data.data[0];
             userName.value = userInfo.value.username || '';
-            avatar.value = userInfo.value.avatar_base64 || '';
+            avatar.value = userInfo.value.avatar || '';  // 使用 avatar 字段
         }
     } catch (error) {
         console.error("加载文章数据失败：", error);

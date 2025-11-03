@@ -2,7 +2,7 @@
   <div class="book-detail">
     <!-- 左侧书籍封面 -->
     <div class="book-image-container">
-      <img :src="`data:image/jpeg;base64,${book.book_img_base64}`" alt="书籍封面" class="book-image" />
+      <img :src="bookImageUrl" alt="书籍封面" class="book-image" />
     </div>
 
     <!-- 中间分割线 -->
@@ -22,9 +22,9 @@
       <!-- 卖家信息 -->
       <div v-if="isLoading" class="seller-loading">加载卖家信息中...</div>
       <div v-else-if="seller" class="seller-info">
-        <div v-if="!seller.avatar_base64" class="avatar-skeleton"></div>
+        <div v-if="!sellerAvatarUrl || sellerAvatarUrl === '/images/default_image.jpg'" class="avatar-skeleton"></div>
         <div v-else class="avatar-container">
-          <img :src="`data:image/jpeg;base64,${seller.avatar_base64}`" alt="卖家头像" class="seller-avatar" />
+          <img :src="sellerAvatarUrl" alt="卖家头像" class="seller-avatar" />
         </div>
         <p class="seller-name">{{ seller.username }}</p>
       </div>
@@ -37,9 +37,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axiosInstance from '@/api/axiosInstance'
 import userApi from '@/api/modules/userApi'
+import { getImageUrl } from '@/utils/image'
 
 const props = defineProps({
   book: Object
@@ -51,6 +52,15 @@ const emit = defineEmits(['close'])
 
 const seller = ref(null)
 const isLoading = ref(true)
+
+// 计算书籍图片 URL
+const bookImageUrl = computed(() => getImageUrl(props.book?.book_img))
+
+// 计算卖家头像 URL
+const sellerAvatarUrl = computed(() => {
+  if (!seller.value?.avatar) return '/images/default_image.jpg'
+  return getImageUrl(seller.value.avatar)
+})
 
 onMounted(async () => {
   try {

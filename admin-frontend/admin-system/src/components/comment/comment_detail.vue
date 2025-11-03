@@ -19,9 +19,9 @@
         <div class="user-info-container">
             <div v-if="isLoading" class="user-loading">加载用户信息中...</div>
             <div v-else-if="userInfo" class="user-info">
-                <div v-if="!userInfo.avatar_base64" class="avatar-skeleton"></div>
+                <div v-if="!avatarUrl || avatarUrl === '/images/default_image.jpg'" class="avatar-skeleton"></div>
                 <div v-else class="avatar-container">
-                    <img :src="`data:image/jpeg;base64,${userInfo.avatar_base64}`" alt="用户头像" class="user-avatar" />
+                    <img :src="avatarUrl" alt="用户头像" class="user-avatar" />
                 </div>
                 <p class="user-name">{{ userInfo.username }}</p>
             </div>
@@ -36,6 +36,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import userApi from '@/api/modules/userApi'
+import { getImageUrl } from '@/utils/image'
 
 const props = defineProps({
     comment: Object
@@ -47,6 +48,12 @@ const emit = defineEmits(['close'])
 
 const userInfo = ref(null)
 const isLoading = ref(true)
+
+// 计算头像 URL
+const avatarUrl = computed(() => {
+  if (!userInfo.value?.avatar) return '/images/default_image.jpg'
+  return getImageUrl(userInfo.value.avatar)
+})
 
 // 计算目标类型
 const targetTypeText = computed(() => {
@@ -81,14 +88,14 @@ onMounted(async () => {
             console.warn('用户API返回了空数据')
             userInfo.value = {
                 username: `未知用户 (ID: ${props.comment.user_id})`,
-                avatar_base64: null
+                avatar: null
             }
         }
     } catch (error) {
         console.error('Failed to fetch user info:', error)
         userInfo.value = {
             username: `未知用户 (ID: ${props.comment.user_id})`,
-            avatar_base64: null
+            avatar: null
         }
     } finally {
         isLoading.value = false
