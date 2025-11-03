@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Article {
-    private String img_url;
     private String txt_type;
     private Integer author_id;
     private String content;

@@ -50,9 +50,8 @@ public class ArticleController {
         // 对于每篇文章，处理图片URL
         for (Article article : articleList) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);  // 清空原始img数据，避免重复返回
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -75,9 +74,8 @@ public class ArticleController {
         // 对于每篇文章，处理图片URL
         for (Article article : articleList) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);  // 清空原始img数据，避免重复返回
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -115,9 +113,8 @@ public class ArticleController {
         // 处理图片URL
         for (Article article : articles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);  // 清空原始img数据，避免重复返回
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -138,9 +135,8 @@ public class ArticleController {
         // 处理图片URL
         for (Article article : articles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -157,9 +153,8 @@ public class ArticleController {
         // 处理图片URL
         for (Article article : articles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -245,9 +240,8 @@ public class ArticleController {
         // 处理图片URL
         for (Article article : unreviewedArticles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);  // 清空原始img数据，避免重复返回
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 
@@ -275,9 +269,8 @@ public class ArticleController {
         // 处理图片URL
         for (Article article : bannedArticles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
-                article.setImg(null);  // 清空原始img数据，避免重复返回
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
 

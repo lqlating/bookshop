@@ -27,8 +27,8 @@ public class ArticleServiceImpl implements ArticleService {
         // 2️⃣ 图片URL处理阶段（如果有图片）
         for (Article article : articles) {
             if (article.getImg() != null) {
-                // img字段已经是URL，直接设置到img_url字段
-                article.setImg_url(article.getImg());
+                // img字段已经是URL，直接使用它
+                article.setImg(article.getImg());
             }
         }
         long encodeTime = System.currentTimeMillis();

@@ -169,9 +169,8 @@ public class MessageServiceImpl implements MessageService {
     private void set_sender(Message message) {
         User sender = userMapper.getUserById(message.getSender_id());
         if (sender != null && sender.getAvatar() != null) {
-            String avatar_base64 = Base64.getEncoder().encodeToString(sender.getAvatar());
-            sender.setAvatar_base64(avatar_base64);
-            sender.setAvatar(null); // 清空原始字节数组，避免传输
+            // avatar字段已经是URL，直接使用它
+            sender.setAvatar(sender.getAvatar());
         }
         message.setSender(sender);
     }

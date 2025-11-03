@@ -42,9 +42,8 @@ public class ConversationServiceImpl implements ConversationService {
             
             // 转换头像为Base64
             if (target_user != null && target_user.getAvatar() != null) {
-                String avatar_base64 = Base64.getEncoder().encodeToString(target_user.getAvatar());
-                target_user.setAvatar_base64(avatar_base64);
-                target_user.setAvatar(null); // 清空原始字节数组，避免传输
+                // avatar字段已经是URL，直接使用它
+                target_user.setAvatar(target_user.getAvatar());
             }
             
             conversation.setTarget_user(target_user);
