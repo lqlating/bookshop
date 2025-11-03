@@ -271,10 +271,11 @@ const submitContent = async () => {
       await bookApi.addBook(formData);
     } else {
       // 文章发布 - 字段名必须匹配后端接口
+      // 注意：FormData.append会自动将值转换为字符串，Spring Boot会正确解析
       formData.append('title', form.value.title);
       formData.append('txtType', form.value.category);
       formData.append('content', form.value.content);
-      formData.append('authorId', userStore.userThing.id);
+      formData.append('authorId', String(userStore.userThing.id)); // 确保是字符串（Spring会转换为Integer）
 
       // 使用FormData上传文件 - 后端接口使用 'img' 作为字段名
       if (form.value.bookImageFile) {
@@ -293,8 +294,18 @@ const submitContent = async () => {
       // 调试：打印FormData内容
       console.log('FormData内容:');
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name}, ${pair[1].type}, ${pair[1].size} bytes)` : pair[1]));
       }
+      
+      // 验证FormData是否正确构建
+      console.log('FormData验证:', {
+        hasTitle: formData.has('title'),
+        hasTxtType: formData.has('txtType'),
+        hasContent: formData.has('content'),
+        hasAuthorId: formData.has('authorId'),
+        hasImg: formData.has('img'),
+        imgIsFile: formData.has('img') ? formData.get('img') instanceof File : false
+      });
 
       await articleApi.addArticle(formData);
     }
