@@ -318,9 +318,36 @@ const submitContent = async () => {
     resetForm();
   } catch (error) {
     console.error('发布失败:', error);
+    
+    // 显示更详细的错误信息
+    let errorMessage = '发布失败，请重试';
+    if (error.response) {
+      // 服务器返回了错误响应
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      if (status === 500) {
+        errorMessage = '服务器内部错误，请联系管理员或检查后端日志';
+        console.error('服务器错误详情:', data);
+      } else if (status === 415) {
+        errorMessage = '不支持的文件格式，请检查上传的图片';
+      } else if (data && data.message) {
+        errorMessage = `错误: ${data.message}`;
+      } else {
+        errorMessage = `请求失败 (状态码: ${status})`;
+      }
+    } else if (error.request) {
+      // 请求已发送但没有收到响应
+      errorMessage = '无法连接到服务器，请检查网络连接';
+    } else {
+      // 其他错误
+      errorMessage = `错误: ${error.message}`;
+    }
+    
     ElMessage({
-      message: '发布失败，请重试',
+      message: errorMessage,
       type: 'error',
+      duration: 5000, // 显示5秒
     });
   }
 };

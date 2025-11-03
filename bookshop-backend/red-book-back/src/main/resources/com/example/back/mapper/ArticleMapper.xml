@@ -68,9 +68,9 @@
         LIMIT #{offset}, #{size}
     </select>
 
-    <insert id="save">
+    <insert id="insert">
         INSERT INTO article (title, content, txt_type, author_id, like_count, star_count, publication_time, address, img, is_review, is_banned)
-        VALUES (#{title}, #{content}, #{txt_type}, #{author_id}, #{like_count}, #{star_count}, #{publication_time}, #{address}, #{img}, #{is_review}, #{is_banned})
+        VALUES (#{title}, #{content}, #{txtType}, #{authorId}, #{likeCount}, #{starCount}, #{publicationTime}, #{address}, #{imgUrl}, #{isReview}, #{isBanned})
     </insert>
 
     <select id="getUnreviewedArticles" resultType="com.example.back.pojo.Article">
