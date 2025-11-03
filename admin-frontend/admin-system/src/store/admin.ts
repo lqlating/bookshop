@@ -3,6 +3,12 @@ import { ref } from 'vue'
 import adminApi from '@/api/modules/adminApi'
 import { ElMessage } from 'element-plus'
 
+interface LoginResponse {
+  code: number
+  msg?: string
+  data?: any
+}
+
 export const useAdminStore = defineStore('admin', () => {
     // 管理员是否登录
     const isLoggedIn = ref(localStorage.getItem('isLoggedIn') === 'true')
@@ -11,21 +17,21 @@ export const useAdminStore = defineStore('admin', () => {
     const loading = ref(false)
 
     // 登录方法
-    const login = async (account, password) => {
+    const login = async (account: string, password: string): Promise<boolean> => {
         try {
             loading.value = true
             const admin = { account, password }
             const res = await adminApi.login(admin)
 
-            if (res.data && res.data.code === 1) {
+            if (res.data && (res.data as LoginResponse).code === 1) {
                 // 登录成功，设置登录状态
                 isLoggedIn.value = true
                 localStorage.setItem('isLoggedIn', 'true')
-                ElMessage.success(res.data.msg || '登录成功')
+                ElMessage.success((res.data as LoginResponse).msg || '登录成功')
                 return true
             } else {
                 // 登录失败
-                ElMessage.error(res.data?.msg || '账号或密码错误')
+                ElMessage.error((res.data as LoginResponse)?.msg || '账号或密码错误')
                 return false
             }
         } catch (error) {
@@ -49,4 +55,5 @@ export const useAdminStore = defineStore('admin', () => {
         login,
         logout
     }
-}) 
+})
+

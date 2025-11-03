@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { usersApi } from '@/api/modules/usersApi'
+import userApi from '@/api/modules/userApi'
 
 export const useUsersStore = defineStore('users', () => {
   const userList = ref([])
@@ -9,20 +9,21 @@ export const useUsersStore = defineStore('users', () => {
   const getUsers = async (params: any) => {
     loading.value = true
     try {
-      const res = await usersApi.getList(params)
-      userList.value = res.data
+      // 使用 userApi 的方法，需要根据实际 API 调整
+      const res = await userApi.SearchUserByUsername(params?.username || '')
+      userList.value = res.data?.data || []
     } finally {
       loading.value = false
     }
   }
 
   const updateUser = async (id: number, data: any) => {
-    await usersApi.update(id, data)
+    await userApi.editUser({ ...data, id })
     await getUsers({})
   }
 
   const deleteUser = async (id: number) => {
-    await usersApi.delete(id)
+    await userApi.DeleteUser(id)
     await getUsers({})
   }
 

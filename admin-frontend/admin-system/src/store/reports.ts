@@ -72,7 +72,7 @@ export const useReportsStore = defineStore('reports', () => {
     }
 
     // 根据内容类型获取举报
-    const getReportsByContentType = async (contentType) => {
+    const getReportsByContentType = async (contentType: string) => {
         try {
             loading.value = true
             const res = await reportApi.getReportsByContentType(contentType)
@@ -87,7 +87,7 @@ export const useReportsStore = defineStore('reports', () => {
     }
 
     // 添加举报
-    const addReport = async (reportData) => {
+    const addReport = async (reportData: any) => {
         try {
             loading.value = true
             const res = await reportApi.addReport(reportData)

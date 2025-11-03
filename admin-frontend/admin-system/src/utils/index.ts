@@ -8,9 +8,9 @@ export const formatDate = (date: Date | string) => {
 }
 
 // 防抖函数
-export const debounce = (fn: Function, delay: number) => {
+export const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number) => {
   let timer: NodeJS.Timeout
-  return function(...args: any[]) {
+  return function(this: any, ...args: Parameters<T>) {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       fn.apply(this, args)
