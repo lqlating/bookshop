@@ -4,7 +4,7 @@
       <template #item="{ item }">
         <div class="card" @contextmenu="(event) => $emit('contextmenu', event, item)">
           <div class="image-container" @click="selectArticle(item)">
-            <img v-if="item.img" :src="item.img" alt="Article Image" 
+            <img v-if="item.img" :src="getImageSrc(item.img)" alt="Article Image" 
               class="lazy" loading="lazy" 
               :key="item.article_id + '-img'" />
             <div v-else class="image-placeholder">暂无图片</div>
@@ -51,6 +51,28 @@ const breakpoints = ref({
   800: { rowPerView: 3 },
   500: { rowPerView: 2 }
 });
+
+// 处理图片URL，像商场页面一样直接使用URL路径
+const getImageSrc = (img) => {
+  if (!img) {
+    return '';
+  }
+  
+  // 如果已经是base64格式，跳过（但根据用户要求，应该不使用base64）
+  // 这里保留检查，以防数据中仍有base64格式
+  if (img.startsWith('data:image')) {
+    return img;
+  }
+  
+  // 如果是相对路径且不以 / 或 http 开头，可能需要拼接baseURL
+  // 如果已经是完整URL，直接返回
+  if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('/')) {
+    return img;
+  }
+  
+  // 否则可能是相对路径，拼接 /api（根据后端配置）
+  return `/api/${img}`;
+};
 
 function handleImageLoad(articleId) {
   imageLoaded.value[articleId] = true;

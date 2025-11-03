@@ -2,7 +2,7 @@
   <div class="article-inner" v-if="localArticleInner">
     <span class="article_img_inner" @click="openOverlay">
       <div class="image-container">
-        <img :src="img || '/images/default_image.jpg'" alt="Article Image"
+        <img :src="getImageSrc(img)" alt="Article Image"
           :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
         <div v-if="props.article.is_review === 0" class="unreviewed-overlay">
           <span class="unreviewed-text">未审核</span>
@@ -57,7 +57,7 @@
 
     <!-- 毛玻璃遮罩层 -->
     <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
-      <img :src="img || '/images/default_image.jpg'" alt="Overlay Image"
+      <img :src="getImageSrc(img)" alt="Overlay Image"
         class="overlay-image" />
     </div>
   </div>
@@ -108,6 +108,26 @@ let {
   address,
 } = props.article;
 
+// 处理图片URL，像商场页面一样直接使用URL路径
+const getImageSrc = (image) => {
+  if (!image) {
+    return '/images/default_image.jpg';
+  }
+  
+  // 如果已经是base64格式，跳过（但根据用户要求，应该不使用base64）
+  if (image.startsWith('data:image')) {
+    return image;
+  }
+  
+  // 如果已经是完整URL，直接返回
+  if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/')) {
+    return image;
+  }
+  
+  // 否则可能是相对路径，拼接 /api（根据后端配置）
+  return `/api/${image}`;
+};
+
 // Store 的引用
 const commentStore = commentInfoStore();
 const { getComments, getCommentCount, commentsByArticleId, commentCountByArticleId, tempSubComment } = commentStore;
@@ -132,7 +152,7 @@ const is_subscript = computed(() => targetIds.value.includes(author_id));
 const isTallImage = computed(() => {
   if (img) {
     const imgElement = new Image();
-    imgElement.src = img;
+    imgElement.src = getImageSrc(img);
     return imgElement.height > imgElement.width;
   }
   return false;
