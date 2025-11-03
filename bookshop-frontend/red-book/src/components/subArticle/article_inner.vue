@@ -1,67 +1,79 @@
 <template>
-  <div class="article-inner" v-if="localArticleInner">
-    <span class="article_img_inner" @click="openOverlay">
-      <div class="image-container">
-        <img :src="getImageSrc(img)" alt="Article Image"
-          :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
-        <div v-if="props.article.is_review === 0" class="unreviewed-overlay">
-          <span class="unreviewed-text">未审核</span>
-        </div>
-      </div>
-    </span>
-    <span>
-      <div class="user-inner">
-        <!-- 头像使用右键点击 -->
-        <div class="avatar-container">
-          <img v-if="avatar" :src="avatar"
-            alt="User Avatar" @contextmenu.prevent="handleAvatarRightClick" />
-
-          <!-- 简单的自定义右键菜单 -->
-          <div v-if="isUserContextMenuVisible" class="custom-menu">
-            <div class="menu-item" @click="showUserReportDialog">举报</div>
+  <transition name="fade">
+    <div v-if="localArticleInner && isDataLoaded" class="article-inner">
+      <span class="article_img_inner" @click="openOverlay">
+        <div class="image-container">
+          <img :src="getImageSrc(img)" alt="Article Image"
+            :class="{ 'fit-height': isTallImage, 'fit-width': !isTallImage }" />
+          <div v-if="props.article.is_review === 0" class="unreviewed-overlay">
+            <span class="unreviewed-text">未审核</span>
           </div>
         </div>
-        <span class="username-info" v-if="userName">{{ userName }}</span>
-        <span class="subscribe" @click="subscribe()" v-show="!is_subscript">关注</span>
-        <span class="no_subscribe" @click="subscribe()" v-show="is_subscript && isLogin">已关注</span>
-      </div>
-      <div class="article-comment">
-        <div class="articleContent">
-          <div class="inner-title">{{ articleTitle }}</div>
-          <div class="inner-content">{{ content }}</div>
-          <div class="date">
-            {{ publication_time }} {{ address }}
-            <el-dropdown trigger="click" class="report-dropdown" teleported>
-              <button class="report-btn">
-                <el-icon class="more-icon">
-                  <MoreFilled />
-                </el-icon>
-              </button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="showReportDialog">举报</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-          <hr class="article-comment-hr" />
-          <div class="comment_count">共 <span>{{ commentCount }}</span> 条评论</div>
-          <Comment class="subcomment" :comment="comment" v-for="comment in comment_content" :key="comment.id"
-            :article_id="article_id"></Comment>
-          <div class="end"> -THE END-</div>
-        </div>
-      </div>
-      <ReplyPart :commentCount="commentCount" :like_count="like_count" :star_count="star_count" :article_id="article_id"
-        :like="like"></ReplyPart>
-    </span>
+      </span>
+      <span>
+        <div class="user-inner">
+          <!-- 头像使用右键点击 -->
+          <div class="avatar-container">
+            <img v-if="avatar" :src="avatar"
+              alt="User Avatar" @contextmenu.prevent="handleAvatarRightClick" />
 
-    <!-- 毛玻璃遮罩层 -->
-    <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
-      <img :src="getImageSrc(img)" alt="Overlay Image"
-        class="overlay-image" />
+            <!-- 简单的自定义右键菜单 -->
+            <div v-if="isUserContextMenuVisible" class="custom-menu">
+              <div class="menu-item" @click="showUserReportDialog">举报</div>
+            </div>
+          </div>
+          <span class="username-info" v-if="userName">{{ userName }}</span>
+          <span class="subscribe" @click="subscribe()" v-show="!is_subscript">关注</span>
+          <span class="no_subscribe" @click="subscribe()" v-show="is_subscript && isLogin">已关注</span>
+        </div>
+        <div class="article-comment">
+          <div class="articleContent">
+            <div class="inner-title">{{ articleTitle }}</div>
+            <div class="inner-content">{{ content }}</div>
+            <div class="date">
+              {{ publication_time }} {{ address }}
+              <el-dropdown trigger="click" class="report-dropdown" teleported>
+                <button class="report-btn">
+                  <el-icon class="more-icon">
+                    <MoreFilled />
+                  </el-icon>
+                </button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="showReportDialog">举报</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+            <hr class="article-comment-hr" />
+            <div class="comment_count">共 <span>{{ commentCount }}</span> 条评论</div>
+            <Comment class="subcomment" :comment="comment" v-for="comment in comment_content" :key="comment.id"
+              :article_id="article_id"></Comment>
+            <div class="end"> -THE END-</div>
+          </div>
+        </div>
+        <ReplyPart :commentCount="commentCount" :like_count="like_count" :star_count="star_count" :article_id="article_id"
+          :like="like"></ReplyPart>
+      </span>
+
+      <!-- 毛玻璃遮罩层 -->
+      <div class="overlay" v-if="isOverlayOpen" @click="closeOverlay">
+        <img :src="getImageSrc(img)" alt="Overlay Image"
+          class="overlay-image" />
+      </div>
     </div>
-  </div>
-  <div class="mask" v-if="localArticleInner" @click="closeArticleInner"></div>
+  </transition>
+  <transition name="fade">
+    <div class="mask" v-if="localArticleInner" @click="closeArticleInner"></div>
+  </transition>
+  
+  <!-- 加载指示器 -->
+  <transition name="fade">
+    <div v-if="localArticleInner && !isDataLoaded" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">加载中...</p>
+    </div>
+  </transition>
 
   <!-- 针对文章的举报对话框 -->
   <ReportDialog :is-visible="isReportDialogVisible" content-type="article" :target-id="article_id"
@@ -144,6 +156,7 @@ const isOverlayOpen = ref(false); // 控制遮罩层的状态
 const isReportDialogVisible = ref(false);
 const isUserReportDialogVisible = ref(false);
 const isUserContextMenuVisible = ref(false);
+const isDataLoaded = ref(false); // 控制数据是否加载完成
 
 // 计算属性
 const commentCount = computed(() => commentCountByArticleId[article_id] || 0);
@@ -164,6 +177,7 @@ const localArticleInner = computed(() => props.article_inner);
 // 数据加载逻辑封装
 async function loadArticleData() {
   try {
+    isDataLoaded.value = false; // 开始加载，隐藏内容
     userName.value = "";
     avatar.value = "";
     const result = await userApi.SearchUserById(author_id);
@@ -172,8 +186,12 @@ async function loadArticleData() {
     avatar.value = userInfo.value.avatar;
     await getComments(article_id);
     await getCommentCount(article_id);
+    // 等待下一帧，确保DOM更新
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    isDataLoaded.value = true; // 数据加载完成，显示内容
   } catch (error) {
     console.error("加载文章数据失败：", error);
+    isDataLoaded.value = true; // 即使出错也显示内容，避免一直显示加载状态
   }
 }
 
@@ -263,6 +281,8 @@ onMounted(() => {
 });
 
 watch(() => props.article, async (newValue) => {
+  // 先重置加载状态
+  isDataLoaded.value = false;
   articleTitle = newValue.title;
   img = newValue.img;
   like_count = newValue.like_count;
@@ -289,6 +309,71 @@ watch(() => props.article, async (newValue) => {
   transform: translate(-50%, -50%);
   border-radius: 20px;
   overflow: hidden;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 过渡动画 */
+.fade-enter-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 加载指示器 */
+.loading-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff2e4d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
 }
 
 .article-inner .article_img_inner {
