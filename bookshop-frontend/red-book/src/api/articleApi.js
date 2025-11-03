@@ -44,8 +44,16 @@ const articleApi = {
     },
     // 添加新文章
     addArticle(article) {
-        // 不设置Content-Type，让axios自动检测FormData并设置multipart/form-data（包括boundary）
-        return axiosInstance.post('/addArticle', article);
+        // 对于FormData，让拦截器删除Content-Type，让浏览器自动设置正确的multipart/form-data（包括boundary）
+        return axiosInstance.post('/addArticle', article, {
+            transformRequest: [(data, headers) => {
+                // 如果数据是FormData，删除Content-Type让浏览器自动设置
+                if (data instanceof FormData) {
+                    delete headers['Content-Type'];
+                }
+                return data;
+            }]
+        });
     },
     // 删除文章
     deleteArticle(articleId) {

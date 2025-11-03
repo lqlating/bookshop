@@ -15,8 +15,16 @@ const bookApi = {
 
     // 添加新书籍
     addBook(book) {
-        // 不设置Content-Type，让axios自动检测FormData并设置multipart/form-data（包括boundary）
-        return axiosInstance.post('/book/addBook', book);
+        // 对于FormData，让拦截器删除Content-Type，让浏览器自动设置正确的multipart/form-data（包括boundary）
+        return axiosInstance.post('/book/addBook', book, {
+            transformRequest: [(data, headers) => {
+                // 如果数据是FormData，删除Content-Type让浏览器自动设置
+                if (data instanceof FormData) {
+                    delete headers['Content-Type'];
+                }
+                return data;
+            }]
+        });
     },
 
     // 更新书籍信息
