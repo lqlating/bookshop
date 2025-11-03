@@ -180,7 +180,7 @@ public class ArticleController {
     }
 
     @Operation(summary = "Add a new article", description = "Inserts a new article into the database")
-    @PostMapping("/addArticle")
+    @PostMapping(value = "/addArticle", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result addArticle(@RequestParam("title") String title,
                              @RequestParam("content") String content,
                              @RequestParam("txtType") String txtType,
@@ -218,7 +218,7 @@ public class ArticleController {
         } catch (IOException e) {
             e.printStackTrace();
             return Result.error("上传失败：" + e.getMessage());
-        }nano
+        }
     }
 
     private String getRandomAddress() {
