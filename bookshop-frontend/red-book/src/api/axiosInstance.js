@@ -8,6 +8,25 @@ const axiosInstance = axios.create({
   // headers: {
   //   'Content-Type': 'application/json',
   // },
+  // 关键：不覆盖默认的transformRequest，但要确保FormData不被转换
+  transformRequest: [
+    function (data, headers) {
+      // 如果是FormData，直接返回，不进行任何转换
+      if (data instanceof FormData) {
+        // 删除Content-Type，让浏览器自动设置multipart/form-data（包括boundary）
+        delete headers['Content-Type'];
+        delete headers['content-type'];
+        return data; // 直接返回FormData对象
+      }
+      // 如果不是FormData，使用axios默认的转换（JSON序列化等）
+      // axios默认会将对象转换为JSON字符串
+      if (typeof data === 'object' && data !== null && !(data instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+        return JSON.stringify(data);
+      }
+      return data;
+    }
+  ]
 });
 
 // 请求拦截器
@@ -41,7 +60,10 @@ axiosInstance.interceptors.request.use(
       // XMLHttpRequest会自动设置：Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...
 
       // 添加调试日志
-      console.log('发送FormData，Content-Type已删除，让浏览器自动设置');
+      console.log('发送FormData，Content-Type已删除，让浏览器自动设置', {
+        isFormData: config.data instanceof FormData,
+        headers: config.headers
+      });
     } else {
       // 如果不是FormData，设置默认的Content-Type为application/json
       config.headers = config.headers || {};

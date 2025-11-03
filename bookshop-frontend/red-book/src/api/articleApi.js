@@ -45,26 +45,14 @@ const articleApi = {
     },
     // 添加新文章
     addArticle(article) {
-        // 对于FormData，确保完全删除Content-Type，让浏览器/XHR自动设置正确的multipart/form-data（包括boundary）
-        return axiosInstance.post('/addArticle', article, {
-            transformRequest: [
-                // 使用axios默认的transformRequest处理普通数据
-                ...(axios.defaults.transformRequest || []),
-                // 自定义处理FormData
-                function (data, headers) {
-                    if (data instanceof FormData) {
-                        // 删除所有可能的Content-Type设置
-                        delete headers['Content-Type'];
-                        delete headers['content-type'];
-                        if (headers.common) {
-                            delete headers.common['Content-Type'];
-                            delete headers.common['content-type'];
-                        }
-                    }
-                    return data;
-                }
-            ]
-        });
+        // 关键：FormData必须直接传递，不能经过任何转换
+        // 如果使用transformRequest，必须确保FormData不会被转换
+        if (article instanceof FormData) {
+            // 直接发送FormData，不使用transformRequest，让浏览器自动处理
+            return axiosInstance.post('/addArticle', article);
+        }
+        // 如果不是FormData，正常处理
+        return axiosInstance.post('/addArticle', article);
     },
     // 删除文章
     deleteArticle(articleId) {
