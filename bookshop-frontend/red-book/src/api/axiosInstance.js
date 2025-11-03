@@ -12,14 +12,19 @@ const axiosInstance = axios.create({
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   config => {
-    // 如果数据是FormData，让浏览器自动设置Content-Type（包括boundary）
+    // 如果数据是FormData，确保正确设置Content-Type
     if (config.data instanceof FormData) {
-      // 如果已经明确设置了multipart/form-data，保留它
-      // 否则删除默认的Content-Type，让浏览器自动设置（包括boundary）
-      if (!config.headers['Content-Type'] ||
-        config.headers['Content-Type'] === 'application/json') {
+      // 删除所有可能设置的Content-Type
+      // 让axios自动检测FormData并设置正确的multipart/form-data（包括boundary参数）
+      if (config.headers) {
         delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
       }
+      if (config.headers.common) {
+        delete config.headers.common['Content-Type'];
+        delete config.headers.common['content-type'];
+      }
+      // axios会自动检测FormData并添加正确的Content-Type: multipart/form-data; boundary=...
     }
     // 可以在这里添加 token
     return config;

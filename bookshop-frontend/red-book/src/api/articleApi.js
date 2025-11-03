@@ -44,7 +44,7 @@ const articleApi = {
     },
     // 添加新文章
     addArticle(article) {
-        // FormData的Content-Type（包括boundary）由浏览器自动设置
+        // 不设置Content-Type，让axios自动检测FormData并设置multipart/form-data（包括boundary）
         return axiosInstance.post('/addArticle', article);
     },
     // 删除文章
