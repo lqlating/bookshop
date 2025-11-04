@@ -133,6 +133,21 @@ public class BookController {
         return Result.success("Book set as reviewed and banned successfully");
     }
 
+    // 新增接口：将指定书籍的 is_review 设置为 1
+    @Operation(summary = "Set book as reviewed", description = "Sets the is_review field of the specified book to 1")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Book marked as reviewed successfully",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Book.class)) }),
+            @ApiResponse(responseCode = "404", description = "Book not found",
+                    content = @Content)
+    })
+    @PutMapping("/setReviewed/{book_id}")
+    public Result setReviewed(@PathVariable Integer book_id) {
+        bookService.setReviewed(book_id);
+        return Result.success("Book marked as reviewed successfully");
+    }
+
     @Operation(summary = "Get unreviewed books", description = "Gets all books with is_review = 0")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved unreviewed books",
