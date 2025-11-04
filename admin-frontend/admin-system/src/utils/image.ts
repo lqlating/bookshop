@@ -24,3 +24,4 @@ export const getImageUrl = (imagePath: string | null | undefined): string => {
   return `/${imagePath}`
 }
 
+
