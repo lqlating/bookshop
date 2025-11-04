@@ -2,10 +2,13 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
+// ✅ 自动根据运行环境设置 base 路径
+// - 开发环境（npm run dev）：base = '/'
+// - 生产环境（npm run build 后部署）：base = '/admin/'
+const basePath = process.env.NODE_ENV === 'production' ? '/admin/' : '/'
+
 export default defineConfig({
-  // ✅ 关键：设置项目部署的基础路径
-  // 这会让所有静态资源路径以 /admin/ 开头
-  base: '/admin/',
+  base: basePath,
 
   plugins: [vue()],
 
