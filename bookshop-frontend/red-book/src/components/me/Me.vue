@@ -105,8 +105,8 @@ onMounted(async () => {
     const subscriptionsResponse = await subscriptApi.getTargetId(id);
     userStats.value.subscriptionsCount = subscriptionsResponse.data.data.length;
 
-    // 获取用户文章
-    const articlesResponse = await articleApi.getArticlesByAuthorId(id);
+    // 获取用户文章（传递page和size参数，符合后端接口要求）
+    const articlesResponse = await articleApi.getArticlesByAuthorId(id, 1, 20);
     articles.value = articlesResponse.data.data || []; // 确保是数组，如果为null则使用空数组
 
     // 提取 target_id 组成数组并调用 searchCount

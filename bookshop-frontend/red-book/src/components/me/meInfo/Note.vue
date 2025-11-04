@@ -144,33 +144,55 @@ const handleClickOutside = () => {
   showContextMenu.value = false;
 };
 
-// 滚动处理，实现触底加载更多
+// 滚动处理，实现触底加载更多（添加防抖优化）
+let scrollTimer = null;
 const handleScroll = () => {
   if (!containerRef.value || isLoadingArticles.value || !hasMoreData.value) return;
   
-  const scrollTop = containerRef.value.scrollTop;
-  const scrollHeight = containerRef.value.scrollHeight;
-  const clientHeight = containerRef.value.clientHeight;
-  
-  // 距离底部200px时开始加载
-  const threshold = scrollHeight - 200;
-  const scrollBottom = scrollTop + clientHeight;
-  
-  if (scrollBottom >= threshold) {
-    loadMore();
+  // 清除之前的定时器，实现防抖
+  if (scrollTimer) {
+    clearTimeout(scrollTimer);
   }
+  
+  scrollTimer = setTimeout(() => {
+    const scrollTop = containerRef.value.scrollTop;
+    const scrollHeight = containerRef.value.scrollHeight;
+    const clientHeight = containerRef.value.clientHeight;
+    
+    // 距离底部200px时开始加载
+    const threshold = scrollHeight - 200;
+    const scrollBottom = scrollTop + clientHeight;
+    
+    if (scrollBottom >= threshold) {
+      loadMore();
+    }
+  }, 100); // 100ms 防抖延迟
 };
 
-// 加载更多文章
+// 加载更多文章（防止重复调用）
+let isLoadingMore = false;
 const loadMore = async () => {
+  // 防止重复调用
+  if (isLoadingMore || isLoadingArticles.value || !hasMoreData.value) {
+    return;
+  }
+  
+  isLoadingMore = true;
   try {
     const result = await loadMoreArticlesByAuthorId(userId);
     if (result.success && result.articles) {
       console.log(`加载了 ${result.articles.length} 篇新文章`);
+      if (result.articles.length === 0) {
+        console.log('没有更多文章了');
+      }
+    } else {
+      console.log('加载更多文章失败或没有更多数据');
     }
   } catch (error) {
     console.error("加载更多文章时出错:", error);
     showToast('加载更多文章失败', 'error');
+  } finally {
+    isLoadingMore = false;
   }
 };
 
@@ -190,6 +212,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
+  // 清理滚动定时器
+  if (scrollTimer) {
+    clearTimeout(scrollTimer);
+  }
 });
 </script>
 

@@ -69,6 +69,13 @@
         LIMIT #{offset}, #{size}
     </select>
 
+    <!-- 根据作者ID获取文章（分页） -->
+    <select id="findArticlesByAuthorId" resultType="com.example.back.pojo.Article">
+        SELECT * FROM article
+        WHERE author_id = #{authorId} AND is_review = 1 AND is_banned = 0
+        LIMIT #{offset}, #{size}
+    </select>
+
     <!-- 获取指定作者文章 -->
     <select id="getArticlesByAuthorId" resultType="com.example.back.pojo.Article">
         SELECT * FROM article
