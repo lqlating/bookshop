@@ -1,14 +1,22 @@
+  GNU nano 6.2                                                   /etc/nginx/sites-available/bookshop                                                          
 server {
     listen 80;
     server_name 117.72.156.242;
 
     # ✅ 管理后台前端
-    location /admin/ {
-        root /var/www/frontend/admin;
+    location ^~ /admin/ {
+        alias /var/www/frontend/admin/;
         index index.html;
         try_files $uri $uri/ /admin/index.html;
     }
-    
+
+    # ✅ 用户前端（书店）
+    location / {
+        root /var/www/frontend/bookshop;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
     # ✅ 静态图片资源
     location /img/ {
         alias /var/www/img/;
@@ -16,7 +24,7 @@ server {
         access_log off;
         expires 30d;
     }
-    
+
     # ✅ 后端 API
     location /api/ {
         proxy_pass http://127.0.0.1:8080/api/;
@@ -24,16 +32,4 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
-    
-    # ✅ 用户前端（书店）
-    location / {
-        root /var/www/frontend/bookshop;
-        index index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    
-    # ✅ gzip 优化
-    gzip on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 }
